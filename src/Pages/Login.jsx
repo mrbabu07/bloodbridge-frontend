@@ -54,7 +54,7 @@ const Login = () => {
   const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-teal-50 dark:from-gray-900 dark:to-blue-900 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4">
       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-teal-500 p-6 text-center">
@@ -70,7 +70,9 @@ const Login = () => {
           <form onSubmit={handleEmailLogin} className="space-y-5">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Email Address
+              </label>
               <div className="relative">
                 <FaEnvelope className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none" />
                 <input
@@ -86,7 +88,9 @@ const Login = () => {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Password
+              </label>
               <div className="relative">
                 <FaLock className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none" />
                 <input
@@ -101,7 +105,11 @@ const Login = () => {
                   onClick={togglePasswordVisibility}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
-                  {isPasswordVisible ? <IoEyeOff className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
+                  {isPasswordVisible ? (
+                    <IoEyeOff className="h-5 w-5" />
+                  ) : (
+                    <FaEye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -110,7 +118,11 @@ const Login = () => {
             <div className="flex justify-end">
               <button
                 type="button"
-                onClick={() => navigate(`/forgot-password?email=${emailInputRef.current?.value || ""}`)}
+                onClick={() =>
+                  navigate(
+                    `/forgot-password?email=${emailInputRef.current?.value || ""}`
+                  )
+                }
                 className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
               >
                 Forgot your password?
@@ -137,7 +149,9 @@ const Login = () => {
           {/* Divider */}
           <div className="my-6 flex items-center">
             <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-            <span className="mx-3 text-sm text-gray-500 dark:text-gray-400">Or continue with</span>
+            <span className="mx-3 text-sm text-gray-500 dark:text-gray-400">
+              Or continue with
+            </span>
             <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
           </div>
 
