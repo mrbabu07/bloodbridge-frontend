@@ -7,8 +7,9 @@ import AuthLayout from "../Layout/AuthLayout";
 import ErrorPage from "../Pages/ErrorPage"; // create this
 import DashboardLayout from "../Dashboard/DashboardLayout";
 import MainDashboard from "../Dashboard/MainDashboard";
-import AddProduct from "../Dashboard/AddProduct/AddProduct";
+
 import ManageProduct from "../Dashboard/ManageProduct/ManageProduct";
+import AddRequest from "../Dashboard/AddProduct/AddRequest";
 
 const router = createBrowserRouter([
   {
@@ -35,12 +36,12 @@ const router = createBrowserRouter([
     element: <DashboardLayout ></DashboardLayout>,
     children: [
       {
-        path: 'main',
+        path: '/dashboard',
         element: <MainDashboard />
       },
       {
-        path: 'add-product',
-        element: <AddProduct />
+        path: 'add-request',
+        element: <AddRequest />
       },
       {
         path: 'manage-product',

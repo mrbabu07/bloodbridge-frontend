@@ -15,12 +15,12 @@ export default function Aside() {
           Dashboard
         </NavItem>
 
-        <NavItem to="/dashboard/add-product" icon={<Package size={18} />}>
-          Add Products
+        <NavItem to="/dashboard/add-request" icon={<Package size={18} />}>
+          Add Request
         </NavItem>
 
         <NavItem to="/dashboard/manage-product" icon={<Package size={18} />}>
-          Manage Products
+          Manage Donor
         </NavItem>
 
         <NavItem to="/dashboard/users" icon={<Users size={18} />}>
