@@ -11,7 +11,7 @@ export default function Aside() {
 
       {/* Menu */}
       <nav className="flex-1 p-4 space-y-2">
-        <NavItem to="/dashboard/main" icon={<LayoutDashboard size={18} />}>
+        <NavItem to="/dashboard" icon={<LayoutDashboard size={18} />}>
           Dashboard
         </NavItem>
 
@@ -23,8 +23,8 @@ export default function Aside() {
           Manage Donor
         </NavItem>
 
-        <NavItem to="/dashboard/users" icon={<Users size={18} />}>
-          Users
+        <NavItem to="/dashboard/all-users" icon={<Users size={18} />}>
+          All Users
         </NavItem>
 
         <NavItem to="/" icon={<Home size={18} />}>
