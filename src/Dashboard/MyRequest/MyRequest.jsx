@@ -25,7 +25,7 @@ const MyRequest = () => {
   };
 
   useEffect(() => {
-    fetchMyRequest(currentPage - 1);
+    fetchMyRequest(currentPage -1);
   }, [axiosSecure, currentPage]);
 
   // Filtered requests
