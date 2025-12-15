@@ -11,7 +11,7 @@ const DashboardLayout = () => {
             className='flex-1 p-5'>
                 <Outlet></Outlet>
             </div>
-            <Footer></Footer>
+            
         </div>
     );
 };

@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.1.17",
+    "animate.css": "^4.1.1",
     "axios": "^1.13.2",
     "firebase": "^12.6.0",
     "lucide-react": "^0.559.0",
