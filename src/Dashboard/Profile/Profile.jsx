@@ -1,22 +1,28 @@
 // src/Pages/Profile.jsx
 import React, { useContext, useEffect, useState } from "react";
-;
-
 import toast from "react-hot-toast";
 import { AuthContext } from "../../Context/AuthProvider";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import axios from "axios"; // ✅ Needed for JSON
 
 const Profile = () => {
   const { user } = useContext(AuthContext);
   const axiosSecure = useAxiosSecure();
   const [profile, setProfile] = useState(null);
+  const [districts, setDistricts] = useState([]);
+  const [upazilas, setUpazilas] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Fetch profile on load
+  // Load district/upazila JSON (same as Register.jsx)
+  useEffect(() => {
+    axios.get("/district.json").then(res => setDistricts(res.data.districts || []));
+    axios.get("/upazila.json").then(res => setUpazilas(res.data.upazilas || []));
+  }, []);
+
+  // Fetch profile
   useEffect(() => {
     if (!user?.email) return;
-
     axiosSecure
       .get(`/users/role/${user.email}`)
       .then((res) => {
@@ -33,7 +39,7 @@ const Profile = () => {
   const handleEdit = () => setIsEditing(true);
 
   const handleCancel = () => {
-    // Re-fetch to reset changes
+    // Re-fetch to reset
     axiosSecure.get(`/users/role/${user.email}`).then((res) => setProfile(res.data));
     setIsEditing(false);
   };
@@ -41,15 +47,13 @@ const Profile = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      // Only send editable fields (exclude email)
       const updateData = {
         name: profile.name,
         bloodGroup: profile.bloodGroup,
-        district: profile.district,
-        upazila: profile.upazila,
+        district: profile.district,      // ✅ stores ID (e.g., "43")
+        upazila: profile.upazila,        // ✅ stores name (e.g., "Sonatala")
         photoURL: profile.photoURL,
       };
-
       await axiosSecure.patch("/users/profile", updateData);
       toast.success("Profile updated!");
       setIsEditing(false);
@@ -62,6 +66,9 @@ const Profile = () => {
     const { name, value } = e.target;
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
+
+  // Filter upazilas by selected district (by ID)
+  const filteredUpazilas = upazilas.filter(u => u.district_id === profile?.district);
 
   if (loading) {
     return (
@@ -78,7 +85,6 @@ const Profile = () => {
       <h2 className="text-2xl font-bold mb-6 text-center">My Profile</h2>
 
       <form onSubmit={handleSave}>
-        {/* Edit / Save Controls */}
         <div className="flex justify-end mb-6">
           {isEditing ? (
             <div className="flex gap-2">
@@ -125,7 +131,7 @@ const Profile = () => {
           )}
         </div>
 
-        {/* Email (read-only always) */}
+        {/* Email */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Email</label>
           <p className="p-2 bg-base-200 rounded">{profile.email}</p>
@@ -153,35 +159,44 @@ const Profile = () => {
           )}
         </div>
 
-        {/* District */}
+        {/* District - Dropdown (shows name, stores ID) */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">District</label>
           {isEditing ? (
-            <input
-              type="text"
+            <select
               name="district"
               value={profile.district || ""}
               onChange={handleChange}
-              className="input input-bordered w-full"
-            />
+              className="select select-bordered w-full"
+            >
+              <option value="">Select District</option>
+              {districts.map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
           ) : (
             <p className="p-2 bg-base-200 rounded">
-              {profile.district || "Not set"}
+              {districts.find(d => d.id === profile.district)?.name || profile.district || "Not set"}
             </p>
           )}
         </div>
 
-        {/* Upazila */}
+        {/* Upazila - Dropdown (shows & stores name) */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Upazila</label>
           {isEditing ? (
-            <input
-              type="text"
+            <select
               name="upazila"
               value={profile.upazila || ""}
               onChange={handleChange}
-              className="input input-bordered w-full"
-            />
+              disabled={!profile?.district}
+              className="select select-bordered w-full"
+            >
+              <option value="">Select Upazila</option>
+              {filteredUpazilas.map((u) => (
+                <option key={u.id} value={u.name}>{u.name}</option>
+              ))}
+            </select>
           ) : (
             <p className="p-2 bg-base-200 rounded">
               {profile.upazila || "Not set"}

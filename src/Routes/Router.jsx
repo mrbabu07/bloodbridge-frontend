@@ -22,6 +22,8 @@ import MyRequest from "../Dashboard/MyRequest/MyRequest";
 import PrivateRoute from "./PrivateRoute";
 import AllUsers from "../Dashboard/AllUsers/AllUsers";
 import Profile from "../Dashboard/Profile/Profile";
+import FundingPage from "../Pages/Funding/FundingPage";
+import EditRequest from "../Dashboard/EditRequest/EditRequest";
 
 const router = createBrowserRouter([
   {
@@ -52,6 +54,7 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+     
     ],
   },
   {
@@ -68,9 +71,16 @@ const router = createBrowserRouter([
       { path: "donation-request", element: <DonationRequest /> },
       { path: "all-users", element: <AllUsers /> },
       { path: "funding", element: <Funding /> },
-      { path: "profile", element: <Profile /> }
-      
-      
+      { path: "profile", element: <Profile /> },
+      { path: "edit-request/:id", element: <EditRequest /> },
+       {
+        path: "funding-page",
+        element: (
+          <PrivateRoute>
+            <FundingPage />
+          </PrivateRoute>
+        ),
+      },
     ],
   },
 ]);

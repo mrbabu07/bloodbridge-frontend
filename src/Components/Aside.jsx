@@ -35,6 +35,7 @@ export default function Aside() {
             <NavItem to="/dashboard/my-request" icon={<Package size={18} />}>
               My Requests
             </NavItem>
+            
           </>
         )}
 
@@ -46,6 +47,9 @@ export default function Aside() {
             </NavItem>
             <NavItem to="/dashboard/donation-request" icon={<Package size={18} />}>
               All Requests
+            </NavItem>
+            <NavItem to="/dashboard/funding-page" icon={<Package size={18} />}>
+              Total Funding
             </NavItem>
           </>
         )}
@@ -61,6 +65,9 @@ export default function Aside() {
             </NavItem>
             <NavItem to="/dashboard/funding" icon={<FileText size={18} />}>
               Funding
+            </NavItem>
+            <NavItem to="/dashboard/funding-page" icon={<Package size={18} />}>
+              Total Funding
             </NavItem>
           </>
         )}
