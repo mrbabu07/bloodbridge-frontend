@@ -68,7 +68,7 @@ const FundingPage = () => {
       {/* Total Funds Banner (from haikei.app style) */}
       <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded">
         <p className="text-red-800 font-medium">
-          🩸 Total Funds Raised: <span className="text-xl font-bold">৳{totalFunds.toLocaleString()}</span>
+          🩸 Total Funds Raised: <span className="text-xl font-bold">${totalFunds.toLocaleString()}</span>
         </p>
       </div>
 
@@ -96,7 +96,7 @@ const FundingPage = () => {
                     <div className="font-medium">{donation.donorName || "Anonymous"}</div>
                     <div className="text-sm text-gray-500">{donation.donorEmail}</div>
                   </td>
-                  <td className="font-bold">৳{donation.amount?.toLocaleString()}</td>
+                  <td className="font-bold">${donation.amount?.toLocaleString()}</td>
                   <td>
                     {donation.createdAt
                       ? new Date(donation.createdAt).toLocaleDateString()
