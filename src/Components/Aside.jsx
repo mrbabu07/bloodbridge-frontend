@@ -1,268 +1,279 @@
-// // src/Components/Aside.jsx
-// import { NavLink } from "react-router-dom";
-// import { LayoutDashboard, Package, Home, LogOut, FileText } from "lucide-react";
-// import { useContext } from "react";
-// import { AuthContext } from "../Context/AuthProvider";
-// import { signOut } from "firebase/auth";
-// import { auth } from "../Firebase/Firebase.config";
-
-// export default function Aside() {
-//   const { role, userStatus } = useContext(AuthContext);
-
-//   const handleLogOut = () => signOut(auth);
-
-//   return (
-//     <aside className="w-64 h-screen bg-gray-900 text-gray-100 flex flex-col">
-//       <div className="p-6 border-b border-gray-800">
-//         <h1 className="text-xl font-semibold">
-//           {role === "admin" ? "Admin Dashboard" : 
-//            role === "volunteer" ? "Volunteer Dashboard" : 
-//            "Donor Dashboard"}
-//         </h1>
-//       </div>
-
-//       <nav className="flex-1 p-4 space-y-2">
-//         <NavItem to="/dashboard" icon={<LayoutDashboard size={18} />}>
-//           Dashboard
-//         </NavItem>
-
-//         {/* Donor: only these two */}
-//         {role === "donor" && userStatus === "active" && (
-//           <>
-//             <NavItem to="/dashboard/add-request" icon={<FileText size={18} />}>
-//               Create Request
-//             </NavItem>
-//             <NavItem to="/dashboard/my-request" icon={<Package size={18} />}>
-//               My Requests
-//             </NavItem>
-            
-//           </>
-//         )}
-
-//         {/* Volunteer */}
-//         {role === "volunteer" && (
-//           <>
-//             <NavItem to="/dashboard/add-request" icon={<FileText size={18} />}>
-//               Create Request
-//             </NavItem>
-//             <NavItem to="/dashboard/donation-request" icon={<Package size={18} />}>
-//               All Requests
-//             </NavItem>
-//             <NavItem to="/dashboard/funding-page" icon={<Package size={18} />}>
-//               Total Funding
-//             </NavItem>
-//           </>
-//         )}
-
-//         {/* Admin */}
-//         {role === "admin" && (
-//           <>
-//             <NavItem to="/dashboard/donation-request" icon={<Package size={18} />}>
-//               All Requests
-//             </NavItem>
-//             <NavItem to="/dashboard/all-users" icon={<Package size={18} />}>
-//               All Users
-//             </NavItem>
-//             <NavItem to="/dashboard/funding" icon={<FileText size={18} />}>
-//               Funding
-//             </NavItem>
-//             <NavItem to="/dashboard/funding-page" icon={<Package size={18} />}>
-//               Total Funding
-//             </NavItem>
-//           </>
-//         )}
-
-//         <NavItem to="/dashboard/profile" icon={<Home size={18} />}>
-//           Profile
-//         </NavItem>
-
-//         <NavItem to="/" icon={<Home size={18} />}>
-//           Back to Home
-//         </NavItem>
-//       </nav>
-
-//       <div className="p-4 border-t border-gray-800">
-//         <button
-//           onClick={handleLogOut}
-//           className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700"
-//         >
-//           <LogOut size={18} />
-//           <span>Logout</span>
-//         </button>
-//       </div>
-//     </aside>
-//   );
-// }
-
-// function NavItem({ to, icon, children }) {
-//   return (
-//     <NavLink
-//       to={to}
-//       className={({ isActive }) =>
-//         `flex items-center gap-3 px-3 py-2 rounded-lg transition ${
-//           isActive ? "bg-gray-800 text-white" : "text-gray-300 hover:bg-gray-800"
-//         }`
-//       }
-//     >
-//       {icon}
-//       <span>{children}</span>
-//     </NavLink>
-//   );
-// }
-
-
-import { NavLink } from "react-router-dom";
-import { 
-  LayoutDashboard, Package, Home, LogOut, FileText, 
-  Users, DollarSign, Heart 
-} from "lucide-react";
-import { useContext } from "react";
+import React, { useContext } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Avatar, Tooltip, Badge } from "antd";
 import { AuthContext } from "../Context/AuthProvider";
-import { signOut } from "firebase/auth";
-import { auth } from "../Firebase/Firebase.config";
-import { motion } from "framer-motion";
+import { useTheme } from "../Context/ThemeContext";
+import { useSocket } from "../Context/SocketContext";
+import {
+  LayoutDashboard,
+  FilePlus,
+  List,
+  User,
+  Home,
+  LogOut,
+  DollarSign,
+  Users,
+  Heart,
+  MessageSquare,
+  BarChart3,
+  Droplet,
+  Mail,
+} from "lucide-react";
 
-export default function Aside() {
-  const { role, userStatus } = useContext(AuthContext);
+const Aside = ({ collapsed = false }) => {
+  const { user, role, userStatus, logout } = useContext(AuthContext);
+  const { theme } = useTheme();
+  const { messageUnreadCount } = useSocket();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleLogOut = () => signOut(auth);
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
+  // Menu items based on role
+  const getMenuItems = () => {
+    const commonItems = [
+      { key: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+      {
+        key: "/dashboard/messages",
+        icon: Mail,
+        label: "Messages",
+        badge: messageUnreadCount,
+      },
+    ];
+
+    const donorItems = [
+      {
+        key: "/dashboard/add-request",
+        icon: FilePlus,
+        label: "Create Request",
+      },
+      { key: "/dashboard/my-request", icon: List, label: "My Requests" },
+    ];
+
+    const volunteerItems = [
+      {
+        key: "/dashboard/add-request",
+        icon: FilePlus,
+        label: "Create Request",
+      },
+      { key: "/dashboard/donation-request", icon: List, label: "All Requests" },
+      { key: "/dashboard/funding-page", icon: DollarSign, label: "Funding" },
+    ];
+
+    const adminItems = [
+      { key: "/dashboard/donation-request", icon: List, label: "All Requests" },
+      { key: "/dashboard/all-users", icon: Users, label: "All Users" },
+      { key: "/dashboard/funding", icon: DollarSign, label: "Funding" },
+      { key: "/dashboard/funding-page", icon: BarChart3, label: "Reports" },
+      {
+        key: "/dashboard/contacts",
+        icon: MessageSquare,
+        label: "Contact Messages",
+      },
+    ];
+
+    let roleItems = [];
+    if (role === "admin") roleItems = adminItems;
+    else if (role === "volunteer") roleItems = volunteerItems;
+    else if (role === "donor" && userStatus === "active")
+      roleItems = donorItems;
+
+    return [...commonItems, ...roleItems];
+  };
+
+  const bottomItems = [
+    { key: "/dashboard/profile", icon: User, label: "My Profile" },
+    { key: "/", icon: Home, label: "Back to Home" },
+  ];
+
+  const menuItems = getMenuItems();
+
+  const MenuItem = ({ item }) => {
+    const isActive = location.pathname === item.key;
+    const Icon = item.icon;
+
+    const buttonContent = (
+      <button
+        onClick={() => navigate(item.key)}
+        className={`
+          w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200
+          ${
+            isActive
+              ? "bg-red-500 text-white shadow-md"
+              : "text-gray-300 hover:bg-white/10 hover:text-white"
+          }
+          ${collapsed ? "justify-center px-2" : ""}
+        `}
+      >
+        <Badge
+          count={item.badge}
+          size="small"
+          offset={collapsed ? [0, 0] : [-5, 0]}
+        >
+          <Icon
+            size={20}
+            className={isActive ? "text-white" : "text-gray-300"}
+          />
+        </Badge>
+        {!collapsed && <span className="font-medium">{item.label}</span>}
+      </button>
+    );
+
+    if (collapsed) {
+      return (
+        <Tooltip
+          title={`${item.label}${item.badge ? ` (${item.badge})` : ""}`}
+          placement="right"
+        >
+          <div className="mx-2 my-1">{buttonContent}</div>
+        </Tooltip>
+      );
+    }
+
+    return <div className="mx-2 my-1">{buttonContent}</div>;
+  };
+
+  const getRoleColor = () => {
+    if (role === "admin") return "#ef4444";
+    if (role === "volunteer") return "#3b82f6";
+    return "#22c55e";
+  };
+
+  const getRoleLabel = () => {
+    if (role === "admin") return "Admin";
+    if (role === "volunteer") return "Volunteer";
+    return "Donor";
+  };
 
   return (
-    <aside className="w-72 h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-gray-100 flex flex-col shadow-2xl">
+    <div className="h-full flex flex-col bg-gray-900 overflow-hidden">
       {/* Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-red-600/10 to-transparent"
-      >
-        <div className="flex items-center gap-3 mb-2">
-          <div className="bg-red-600 p-2 rounded-lg">
-            <Heart size={24} fill="white" className="text-white" />
+      <div className={`p-4 ${collapsed ? "px-2" : ""}`}>
+        {/* Logo */}
+        <div
+          className={`flex items-center gap-3 mb-6 ${
+            collapsed ? "justify-center" : "px-2"
+          }`}
+        >
+          <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Heart className="text-white" size={20} fill="white" />
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-white">
-              {role === "admin" ? "Admin Panel" : 
-               role === "volunteer" ? "Volunteer Panel" : 
-               "Donor Panel"}
-            </h1>
-            <p className="text-xs text-gray-400 capitalize">{role} Dashboard</p>
-          </div>
+          {!collapsed && (
+            <div>
+              <h1 className="text-white font-bold text-lg">BloodBridge</h1>
+              <span className="text-gray-500 text-xs">Save Lives</span>
+            </div>
+          )}
         </div>
-      </motion.div>
+
+        {/* User Info */}
+        {collapsed ? (
+          <Tooltip
+            title={`${user?.name} (${getRoleLabel()})`}
+            placement="right"
+          >
+            <div className="flex justify-center mb-4">
+              <Avatar
+                src={user?.photoURL || undefined}
+                size={40}
+                className="border-2 border-red-500"
+                icon={<User size={18} />}
+              />
+            </div>
+          </Tooltip>
+        ) : (
+          <div className="flex items-center gap-3 px-2 py-3 rounded-xl bg-white/5 mb-4">
+            <Avatar
+              src={user?.photoURL || undefined}
+              size={40}
+              className="border-2 border-red-500 flex-shrink-0"
+              icon={<User size={18} />}
+            />
+            <div className="flex-1 min-w-0">
+              <h3 className="text-white font-medium truncate text-sm">
+                {user?.name || "User"}
+              </h3>
+              <div className="flex items-center gap-2">
+                <span
+                  className="text-xs px-2 py-0.5 rounded-full"
+                  style={{
+                    backgroundColor: `${getRoleColor()}30`,
+                    color: getRoleColor(),
+                  }}
+                >
+                  {getRoleLabel()}
+                </span>
+                {user?.isDemo && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400">
+                    Demo
+                  </span>
+                )}
+                {user?.bloodGroup && (
+                  <span className="flex items-center gap-1 text-xs text-gray-400">
+                    <Droplet size={10} className="text-red-400" />
+                    {user.bloodGroup}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        <NavItem to="/dashboard" icon={<LayoutDashboard size={20} />}>
-          Dashboard Home
-        </NavItem>
-
-        {/* Donor Routes */}
-        {role === "donor" && userStatus === "active" && (
-          <>
-            <NavItem to="/dashboard/add-request" icon={<FileText size={20} />}>
-              Create Request
-            </NavItem>
-            <NavItem to="/dashboard/my-request" icon={<Package size={20} />}>
-              My Requests
-            </NavItem>
-          </>
+      <div className="flex-1 overflow-y-auto py-2">
+        {!collapsed && (
+          <div className="px-4 mb-2">
+            <span className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+              Menu
+            </span>
+          </div>
         )}
+        {menuItems.map((item) => (
+          <MenuItem key={item.key} item={item} />
+        ))}
 
-        {/* Volunteer Routes */}
-        {role === "volunteer" && (
-          <>
-            <NavItem to="/dashboard/add-request" icon={<FileText size={20} />}>
-              Create Request
-            </NavItem>
-            <NavItem to="/dashboard/donation-request" icon={<Package size={20} />}>
-              All Requests
-            </NavItem>
-            <NavItem to="/dashboard/funding-page" icon={<DollarSign size={20} />}>
-              Total Funding
-            </NavItem>
-          </>
+        {!collapsed && (
+          <div className="px-4 mt-6 mb-2">
+            <span className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
+              Account
+            </span>
+          </div>
         )}
+        {collapsed && <div className="my-4 border-t border-white/10 mx-4" />}
+        {bottomItems.map((item) => (
+          <MenuItem key={item.key} item={item} />
+        ))}
+      </div>
 
-        {/* Admin Routes */}
-        {role === "admin" && (
-          <>
-            <NavItem to="/dashboard/donation-request" icon={<Package size={20} />}>
-              All Requests
-            </NavItem>
-            <NavItem to="/dashboard/all-users" icon={<Users size={20} />}>
-              All Users
-            </NavItem>
-            <NavItem to="/dashboard/funding" icon={<FileText size={20} />}>
-              Funding
-            </NavItem>
-            <NavItem to="/dashboard/funding-page" icon={<DollarSign size={20} />}>
-              Total Funding
-            </NavItem>
-          </>
-        )}
-
-        {/* Common Routes */}
-        <div className="pt-4 mt-4 border-t border-gray-700/50">
-          <NavItem to="/dashboard/profile" icon={<Users size={20} />}>
-            My Profile
-          </NavItem>
-          <NavItem to="/" icon={<Home size={20} />}>
-            Back to Home
-          </NavItem>
-        </div>
-      </nav>
-
-      {/* Logout Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="p-4 border-t border-gray-700/50 bg-gray-800/30"
+      {/* Logout */}
+      <div
+        className={`p-4 border-t border-white/10 ${collapsed ? "px-2" : ""}`}
       >
-        <motion.button
-          whileHover={{ scale: 1.02, backgroundColor: "#B91C1C" }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleLogOut}
-          className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg hover:shadow-red-500/50 transition-all duration-300"
-        >
-          <LogOut size={20} />
-          <span>Logout</span>
-        </motion.button>
-      </motion.div>
-    </aside>
-  );
-}
-
-function NavItem({ to, icon, children }) {
-  return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
-          isActive 
-            ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-500/30" 
-            : "text-gray-300 hover:bg-gray-800 hover:text-white"
-        }`
-      }
-    >
-      {({ isActive }) => (
-        <>
-          <motion.div
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            className={isActive ? "text-white" : "text-gray-400 group-hover:text-red-500"}
+        {collapsed ? (
+          <Tooltip title="Logout" placement="right">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center p-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors"
+            >
+              <LogOut size={18} />
+            </button>
+          </Tooltip>
+        ) : (
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors"
           >
-            {icon}
-          </motion.div>
-          <span className="font-medium">{children}</span>
-          {isActive && (
-            <motion.div
-              layoutId="activeIndicator"
-              className="ml-auto w-2 h-2 bg-white rounded-full"
-            />
-          )}
-        </>
-      )}
-    </NavLink>
+            <LogOut size={18} />
+            <span className="font-medium">Logout</span>
+          </button>
+        )}
+      </div>
+    </div>
   );
-}
+};
+
+export default Aside;

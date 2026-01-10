@@ -1,257 +1,89 @@
-// import {
-//   GoogleAuthProvider,
-//   signInWithEmailAndPassword,
-//   signInWithPopup,
-// } from "firebase/auth";
-// import React, { useRef, useState, useContext } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { FaEye, FaHome, FaGoogle, FaLock, FaEnvelope } from "react-icons/fa";
-// import { IoEyeOff } from "react-icons/io5";
-// import toast from "react-hot-toast";
-// import { auth } from "../Firebase/Firebase.config";
-// import { AuthContext } from "../context/AuthProvider";
-
-// const googleProvider = new GoogleAuthProvider();
-
-// const Login = () => {
-//   const navigate = useNavigate();
-//   const emailInputRef = useRef(null);
-//   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-//   const [isLoading, setIsLoading] = useState(false);
-
-//   const { user, role, loading } = useContext(AuthContext);
-
-//   const handleEmailLogin = async (e) => {
-//     e.preventDefault();
-//     setIsLoading(true);
-
-//     const emailValue = e.target.email.value;
-//     const passwordValue = e.target.password.value;
-
-//     if (!emailValue || !passwordValue) {
-//       toast.error("Please enter both email and password.");
-//       setIsLoading(false);
-//       return;
-//     }
-
-//     try {
-//       await signInWithEmailAndPassword(auth, emailValue, passwordValue);
-//       toast.success("Logged in successfully!");
-//       navigate("/");
-//     } catch (error) {
-//       const errorMsg = error.message.includes("wrong-password")
-//         ? "Incorrect password. Please try again."
-//         : "Could not sign you in. Please check your credentials.";
-//       toast.error(errorMsg);
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   const handleGoogleLogin = async () => {
-//     setIsLoading(true);
-//     try {
-//       await signInWithPopup(auth, googleProvider);
-//       toast.success("Logged in with Google!");
-//       navigate("/");
-//     } catch {
-//       toast.error("Google sign-in failed. Please try again.");
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
-
-//   if (loading) return <div>Loading...</div>;
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-teal-50 dark:from-gray-900 dark:to-blue-900 p-4">
-//       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
-//         {/* Header */}
-//         <div className="bg-gradient-to-r from-blue-600 to-teal-500 p-6 text-center">
-//           <div className="flex items-center justify-center mb-4">
-//             <FaHome className="text-white text-2xl mr-2" />
-//           </div>
-//           <h2 className="text-xl font-semibold text-white">Welcome Back</h2>
-//           <p className="text-blue-100 mt-2">Sign in to your account</p>
-//         </div>
-
-//         {/* Form */}
-//         <div className="p-8">
-//           <form onSubmit={handleEmailLogin} className="space-y-6">
-//             {/* Email */}
-//             <div className="space-y-2">
-//               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-//                 Email Address
-//               </label>
-//               <div className="relative">
-//                 <FaEnvelope className="absolute top-3 left-3 text-gray-400 pointer-events-none" />
-//                 <input
-//                   type="email"
-//                   name="email"
-//                   ref={emailInputRef}
-//                   className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-//                   placeholder="Enter your email"
-//                   required
-//                 />
-//               </div>
-//             </div>
-
-//             {/* Password */}
-//             <div className="space-y-2">
-//               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-//                 Password
-//               </label>
-//               <div className="relative">
-//                 <FaLock className="absolute top-3 left-3 text-gray-400 pointer-events-none" />
-//                 <input
-//                   type={isPasswordVisible ? "text" : "password"}
-//                   name="password"
-//                   className="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-//                   placeholder="Enter your password"
-//                   required
-//                 />
-//                 <button
-//                   type="button"
-//                   onClick={togglePasswordVisibility}
-//                   className="absolute top-3 right-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-//                 >
-//                   {isPasswordVisible ? <IoEyeOff className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
-//                 </button>
-//               </div>
-//             </div>
-
-//             {/* Forgot Password */}
-//             <div className="flex justify-end">
-//               <button
-//                 type="button"
-//                 onClick={() =>
-//                   navigate(`/forgot-password?email=${emailInputRef.current?.value || ""}`)
-//                 }
-//                 className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
-//               >
-//                 Forgot your password?
-//               </button>
-//             </div>
-
-//             {/* Submit */}
-//             <button
-//               type="submit"
-//               disabled={isLoading}
-//               className="w-full bg-gradient-to-r from-blue-800 to-teal-500 hover:from-blue-300 hover:to-teal-600 text-white py-3 px-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-lg"
-//             >
-//               {isLoading ? (
-//                 <div className="flex items-center justify-center">
-//                   <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2"></div>
-//                   Signing In...
-//                 </div>
-//               ) : (
-//                 "Sign In"
-//               )}
-//             </button>
-//           </form>
-
-//           {/* Google Login */}
-//           <button
-//             onClick={handleGoogleLogin}
-//             disabled={isLoading}
-//             className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 font-medium shadow-md hover:shadow-lg transition-all duration-200 mt-6"
-//           >
-//             <FaGoogle className="text-red-500" />
-//             Continue with Google
-//           </button>
-
-//           {/* Sign Up */}
-//           <div className="mt-8 text-center">
-//             <p className="text-gray-600 dark:text-gray-400">
-//               Don't have an account?{" "}
-//               <button
-//                 onClick={() => navigate("/register")}
-//                 className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold transition-colors"
-//               >
-//                 Create one here
-//               </button>
-//             </p>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Login;
-
-import {
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
-import React, { useRef, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaEye, FaGoogle, FaLock, FaEnvelope } from "react-icons/fa";
-import { IoEyeOff } from "react-icons/io5";
-import { Heart, ArrowRight } from "lucide-react";
+import React, { useContext, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Heart } from "lucide-react";
 import toast from "react-hot-toast";
-import { auth } from "../Firebase/Firebase.config";
-import { AuthContext } from "../context/AuthProvider";
+import { AuthContext } from "../Context/AuthProvider";
+import { useTheme } from "../Context/ThemeContext";
 import { motion } from "framer-motion";
-
-const googleProvider = new GoogleAuthProvider();
+import { Form, Input, Button, Divider, Space, Checkbox } from "antd";
+import {
+  MailOutlined,
+  LockOutlined,
+  GoogleOutlined,
+  FacebookFilled,
+  UserOutlined,
+  ThunderboltOutlined,
+} from "@ant-design/icons";
 
 const Login = () => {
   const navigate = useNavigate();
-  const emailInputRef = useRef(null);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { login, loading } = useContext(AuthContext);
+  const { isDarkMode, theme } = useTheme();
+  const [form] = Form.useForm();
 
-  const { user, role, loading } = useContext(AuthContext);
-
-  const handleEmailLogin = async (e) => {
-    e.preventDefault();
+  const onFinish = async (values) => {
     setIsLoading(true);
-
-    const emailValue = e.target.email.value;
-    const passwordValue = e.target.password.value;
-
-    if (!emailValue || !passwordValue) {
-      toast.error("Please enter both email and password.");
-      setIsLoading(false);
-      return;
-    }
+    const { email, password } = values;
 
     try {
-      await signInWithEmailAndPassword(auth, emailValue, passwordValue);
-      toast.success("Logged in successfully! 🎉");
-      navigate("/");
+      const result = await login(email, password);
+
+      if (result.success) {
+        toast.success("Logged in successfully! 🎉");
+        navigate("/");
+      } else {
+        toast.error(result.message || "Login failed");
+      }
     } catch (error) {
-      const errorMsg = error.message.includes("wrong-password")
-        ? "Incorrect password. Please try again."
-        : "Could not sign you in. Please check your credentials.";
-      toast.error(errorMsg);
+      toast.error("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleLogin = async () => {
+  // Demo login credentials
+  const demoCredentials = {
+    admin: { email: "admin@bloodbridge.org", password: "admin123" },
+    donor: { email: "donor@bloodbridge.org", password: "donor123" },
+    volunteer: { email: "volunteer@bloodbridge.org", password: "volunteer123" },
+  };
+
+  const handleDemoLogin = async (role) => {
+    const creds = demoCredentials[role];
+    form.setFieldsValue(creds);
     setIsLoading(true);
+
     try {
-      await signInWithPopup(auth, googleProvider);
-      toast.success("Logged in with Google! 🎉");
-      navigate("/");
-    } catch {
-      toast.error("Google sign-in failed. Please try again.");
+      const result = await login(creds.email, creds.password);
+
+      if (result.success) {
+        toast.success(`Logged in as demo ${role}! 🎉`);
+        navigate("/dashboard");
+      } else {
+        // If login fails, user might not exist - show message to seed
+        toast.error(`Demo ${role} not found. Please seed demo users first.`);
+      }
+    } catch (error) {
+      toast.error(`Demo login failed. Please ensure demo users are seeded.`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
+  const handleSocialLogin = (provider) => {
+    toast.info(`${provider} login coming soon!`);
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100">
+      <div
+        className={`min-h-screen flex items-center justify-center ${
+          isDarkMode
+            ? "bg-gray-900"
+            : "bg-gradient-to-br from-red-50 to-red-100"
+        }`}
+      >
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -263,23 +95,28 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-red-100 p-4 relative overflow-hidden">
-      {/* Animated Background Elements */}
+    <div
+      className={`min-h-screen flex items-center justify-center p-4 relative overflow-hidden ${
+        isDarkMode
+          ? "bg-gray-900"
+          : "bg-gradient-to-br from-red-50 via-white to-red-100"
+      }`}
+    >
+      {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(5)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute text-red-200 opacity-20"
+            className={`absolute ${
+              isDarkMode ? "text-red-900" : "text-red-200"
+            } opacity-20`}
             initial={{ y: -100, x: `${i * 25}%` }}
-            animate={{ 
-              y: "110vh",
-              rotate: 360
-            }}
+            animate={{ y: "110vh", rotate: 360 }}
             transition={{
               duration: 20 + i * 3,
               repeat: Infinity,
               ease: "linear",
-              delay: i * 1
+              delay: i,
             }}
           >
             <Heart size={40 + i * 10} fill="currentColor" />
@@ -287,199 +124,208 @@ const Login = () => {
         ))}
       </div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-md w-full bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-red-100 relative z-10"
+        className="max-w-md w-full relative z-10"
       >
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-gradient-to-r from-red-600 via-red-700 to-red-800 p-8 text-center relative overflow-hidden"
+        <div
+          className="rounded-2xl shadow-2xl overflow-hidden"
+          style={{
+            backgroundColor: theme.colors.card,
+            border: `1px solid ${theme.colors.border}`,
+          }}
         >
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-            }}></div>
-          </div>
-          
-          <motion.div 
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4, type: "spring" }}
-            className="relative"
-          >
-            <div className="flex items-center justify-center mb-4">
-              <div className="bg-white/20 backdrop-blur-sm p-3 rounded-2xl">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-red-600 via-red-700 to-red-800 p-8 text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2, type: "spring" }}
+            >
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Heart className="text-white" size={32} fill="white" />
               </div>
-            </div>
-          </motion.div>
-          
-          <h2 className="text-2xl font-bold text-white mb-2 relative">Welcome Back</h2>
-          <p className="text-red-100 relative">Sign in to continue saving lives</p>
-        </motion.div>
-
-        {/* Form */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="p-8"
-        >
-          <form onSubmit={handleEmailLogin} className="space-y-6">
-            {/* Email */}
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="space-y-2"
-            >
-              <label className="block text-sm font-semibold text-gray-700">
-                Email Address
-              </label>
-              <div className="relative group">
-                <FaEnvelope className="absolute top-4 left-4 text-gray-400 group-focus-within:text-red-600 transition-colors" />
-                <input
-                  type="email"
-                  name="email"
-                  ref={emailInputRef}
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
             </motion.div>
+            <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
+            <p className="text-red-100">Sign in to continue saving lives</p>
+          </div>
 
-            {/* Password */}
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="space-y-2"
-            >
-              <label className="block text-sm font-semibold text-gray-700">
-                Password
-              </label>
-              <div className="relative group">
-                <FaLock className="absolute top-4 left-4 text-gray-400 group-focus-within:text-red-600 transition-colors" />
-                <input
-                  type={isPasswordVisible ? "text" : "password"}
-                  name="password"
-                  className="w-full pl-12 pr-12 py-3.5 border-2 border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                  placeholder="Enter your password"
-                  required
-                />
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  type="button"
-                  onClick={togglePasswordVisibility}
-                  className="absolute top-4 right-4 text-gray-400 hover:text-red-600 transition-colors"
+          {/* Form */}
+          <div className="p-6">
+            {/* Demo Login Buttons */}
+            <div className="mb-6">
+              <p
+                className="text-center text-sm mb-3"
+                style={{ color: theme.colors.textSecondary }}
+              >
+                <ThunderboltOutlined className="mr-1" /> Quick Demo Login
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  size="small"
+                  onClick={() => handleDemoLogin("admin")}
+                  className="text-xs"
+                  icon={<UserOutlined />}
+                  loading={isLoading}
+                  style={{
+                    backgroundColor: "#ef4444",
+                    borderColor: "#ef4444",
+                    color: "white",
+                  }}
                 >
-                  {isPasswordVisible ? <IoEyeOff className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
-                </motion.button>
+                  Admin
+                </Button>
+                <Button
+                  size="small"
+                  onClick={() => handleDemoLogin("donor")}
+                  className="text-xs"
+                  icon={<UserOutlined />}
+                  loading={isLoading}
+                  style={{
+                    backgroundColor: "#22c55e",
+                    borderColor: "#22c55e",
+                    color: "white",
+                  }}
+                >
+                  Donor
+                </Button>
+                <Button
+                  size="small"
+                  onClick={() => handleDemoLogin("volunteer")}
+                  className="text-xs"
+                  icon={<UserOutlined />}
+                  loading={isLoading}
+                  style={{
+                    backgroundColor: "#3b82f6",
+                    borderColor: "#3b82f6",
+                    color: "white",
+                  }}
+                >
+                  Volunteer
+                </Button>
               </div>
-            </motion.div>
+            </div>
 
-            {/* Forgot Password */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.7 }}
-              className="flex justify-end"
+            <Divider style={{ borderColor: theme.colors.border }}>
+              <span style={{ color: theme.colors.textSecondary }}>
+                or sign in with email
+              </span>
+            </Divider>
+
+            <Form
+              form={form}
+              name="login"
+              onFinish={onFinish}
+              layout="vertical"
+              size="large"
+              requiredMark={false}
             >
-              <button
-                type="button"
-                onClick={() =>
-                  navigate(`/forgot-password?email=${emailInputRef.current?.value || ""}`)
-                }
-                className="text-sm text-red-600 hover:text-red-700 font-semibold transition-colors hover:underline"
+              <Form.Item
+                name="email"
+                rules={[
+                  { required: true, message: "Please enter your email" },
+                  { type: "email", message: "Please enter a valid email" },
+                ]}
               >
-                Forgot password?
-              </button>
-            </motion.div>
+                <Input
+                  prefix={
+                    <MailOutlined
+                      style={{ color: theme.colors.textSecondary }}
+                    />
+                  }
+                  placeholder="Email Address"
+                  className="rounded-lg h-11"
+                />
+              </Form.Item>
 
-            {/* Submit */}
-            <motion.button
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-3.5 px-4 rounded-xl font-bold shadow-lg hover:shadow-red-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                  />
-                  Signing In...
-                </div>
-              ) : (
-                <>
+              <Form.Item
+                name="password"
+                rules={[
+                  { required: true, message: "Please enter your password" },
+                ]}
+              >
+                <Input.Password
+                  prefix={
+                    <LockOutlined
+                      style={{ color: theme.colors.textSecondary }}
+                    />
+                  }
+                  placeholder="Password"
+                  className="rounded-lg h-11"
+                />
+              </Form.Item>
+
+              <div className="flex justify-between items-center mb-4">
+                <Checkbox>
+                  <span style={{ color: theme.colors.textSecondary }}>
+                    Remember me
+                  </span>
+                </Checkbox>
+                <Link
+                  to="/forgot-password"
+                  className="text-red-500 hover:text-red-600 text-sm"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+
+              <Form.Item className="mb-4">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={isLoading}
+                  block
+                  className="bg-red-500 border-red-500 h-12 font-semibold rounded-lg"
+                >
                   Sign In
-                  <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
-                </>
-              )}
-            </motion.button>
-          </form>
+                </Button>
+              </Form.Item>
+            </Form>
 
-          {/* Divider */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.9 }}
-            className="relative my-8"
-          >
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t-2 border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500 font-medium">OR</span>
-            </div>
-          </motion.div>
+            {/* Social Login */}
+            <Divider style={{ borderColor: theme.colors.border }}>
+              <span style={{ color: theme.colors.textSecondary }}>
+                or continue with
+              </span>
+            </Divider>
 
-          {/* Google Login */}
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1 }}
-            whileHover={{ scale: 1.02, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleGoogleLogin}
-            disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 border-2 border-gray-200 rounded-xl bg-white hover:bg-gray-50 text-gray-700 font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <FaGoogle className="text-red-500 text-xl" />
-            Continue with Google
-          </motion.button>
-
-          {/* Sign Up */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 1.1 }}
-            className="mt-8 text-center"
-          >
-            <p className="text-gray-600">
-              Don't have an account?{" "}
-              <button
-                onClick={() => navigate("/register")}
-                className="text-red-600 hover:text-red-700 font-bold transition-colors hover:underline"
+            <Space className="w-full" direction="vertical" size="small">
+              <Button
+                block
+                size="large"
+                icon={<GoogleOutlined />}
+                onClick={() => handleSocialLogin("Google")}
+                className="rounded-lg h-11"
               >
-                Create one here
-              </button>
-            </p>
-          </motion.div>
-        </motion.div>
+                Continue with Google
+              </Button>
+              <Button
+                block
+                size="large"
+                icon={<FacebookFilled style={{ color: "#1877f2" }} />}
+                onClick={() => handleSocialLogin("Facebook")}
+                className="rounded-lg h-11"
+              >
+                Continue with Facebook
+              </Button>
+            </Space>
+
+            {/* Register Link */}
+            <div className="mt-6 text-center">
+              <span style={{ color: theme.colors.textSecondary }}>
+                Don't have an account?{" "}
+              </span>
+              <Link
+                to="/register"
+                className="text-red-500 hover:text-red-600 font-semibold"
+              >
+                Create Account
+              </Link>
+            </div>
+          </div>
+        </div>
       </motion.div>
     </div>
   );

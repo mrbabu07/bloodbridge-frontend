@@ -1,382 +1,301 @@
-
-// import React, { useContext, useEffect, useState } from "react";
-// import { AuthContext } from "../Context/AuthProvider";
-// import useAxiosSecure from "../hooks/useAxiosSecure";
-// import { Link } from "react-router-dom";
-// import toast from "react-hot-toast";
-
-// const VolunteerDashboard = () => {
-//   const { user } = useContext(AuthContext);
-//   const axiosSecure = useAxiosSecure();
-//   const [requests, setRequests] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [totalPages, setTotalPages] = useState(1);
-
-//   
-//   useEffect(() => {
-//     const fetchRequests = async () => {
-//       setLoading(true);
-//       try {
-//         const res = await axiosSecure.get(
-//           `/donation-request?page=${currentPage}&size=8`
-//         );
-//         setRequests(res.data.requests || []);
-//         setTotalPages(res.data.totalPages || 1);
-//       } catch (err) {
-//         console.error("Failed to load requests", err);
-//         toast.error("Failed to load requests");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchRequests();
-//   }, [axiosSecure, currentPage]);
-
-//   return (
-//     <div className="space-y-8">
-//       {/* Welcome Section */}
-//       <div className="bg-white p-6 rounded-xl shadow-sm">
-//         <h1 className="text-2xl font-bold text-gray-800">
-//           Welcome, <span className="text-red-600">{user?.displayName}</span>!
-//         </h1>
-//         <p className="text-gray-600">View and manage blood donation requests.</p>
-//       </div>
-
-//       {/* All Requests Table */}
-//       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-//         <div className="px-6 py-4 border-b border-gray-200">
-//           <h2 className="text-xl font-semibold">All Blood Donation Requests</h2>
-//         </div>
-//         <div className="overflow-x-auto">
-//           <table className="table w-full">
-//             <thead>
-//               <tr className="text-left text-gray-500 text-sm">
-//                 <th>Recipient</th>
-//                 <th>Location</th>
-//                 <th>Blood Group</th>
-//                 <th>Date & Time</th>
-//                 <th>Status</th>
-//                 <th>Actions</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {loading ? (
-//                 <tr>
-//                   <td colSpan="6" className="text-center py-8">
-//                     <span className="loading loading-spinner text-primary"></span>
-//                   </td>
-//                 </tr>
-//               ) : requests.length > 0 ? (
-//                 requests.map((req) => (
-//                   <tr key={req._id} className="hover:bg-gray-50">
-//                     <td className="font-medium">{req.recipientName}</td>
-//                     <td>{req.district}, {req.upazila}</td>
-//                     <td>
-//                       <span className="badge badge-error">{req.blood_group}</span>
-//                     </td>
-//                     <td>
-//                       <div>{req.donation_date}</div>
-//                       <div className="text-sm text-gray-500">{req.donation_time}</div>
-//                     </td>
-//                     <td>
-//                       <span className={`badge ${
-//                         req.donation_status === "pending" ? "badge-warning" :
-//                         req.donation_status === "inprogress" ? "badge-info" :
-//                         req.donation_status === "done" ? "badge-success" : "badge-error"
-//                       }`}>
-//                         {req.donation_status}
-//                       </span>
-//                     </td>
-//                     <td>
-//                       <Link
-//                         to={`/donation-request/${req._id}`}
-//                         className="btn btn-xs btn-outline"
-//                       >
-//                         View
-//                       </Link>
-//                     </td>
-//                   </tr>
-//                 ))
-//               ) : (
-//                 <tr>
-//                   <td colSpan="6" className="text-center py-4 text-gray-500">
-//                     No donation requests found.
-//                   </td>
-//                 </tr>
-//               )}
-//             </tbody>
-//           </table>
-//         </div>
-
-//        
-//         {totalPages > 1 && (
-//           <div className="flex justify-center items-center gap-2 py-6 bg-gray-50">
-//             <button
-//               className="btn btn-sm"
-//               disabled={currentPage === 1}
-//               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-//             >
-//               ← Prev
-//             </button>
-
-//             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-//               let pageNum;
-//               if (totalPages <= 5) {
-//                 pageNum = i + 1;
-//               } else if (currentPage <= 3) {
-//                 pageNum = i + 1;
-//               } else if (currentPage >= totalPages - 2) {
-//                 pageNum = totalPages - 4 + i;
-//               } else {
-//                 pageNum = currentPage - 2 + i;
-//               }
-//               return (
-//                 <button
-//                   key={pageNum}
-//                   className={`btn btn-sm ${
-//                     currentPage === pageNum ? "btn-error" : "btn-outline"
-//                   }`}
-//                   onClick={() => setCurrentPage(pageNum)}
-//                 >
-//                   {pageNum}
-//                 </button>
-//               );
-//             })}
-
-//             <button
-//               className="btn btn-sm"
-//               disabled={currentPage === totalPages}
-//               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-//             >
-//               Next →
-//             </button>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default VolunteerDashboard;
-
-
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../Context/AuthProvider";
+import { useTheme } from "../Context/ThemeContext";
 import useAxiosSecure from "../hooks/useAxiosSecure";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import {
+  Card,
+  Row,
+  Col,
+  Button,
+  Typography,
+  Pagination,
+  Table,
+  Empty,
+} from "antd";
+import {
+  FileText,
+  Clock,
+  CheckCircle,
+  Activity,
+  Eye,
+  MapPin,
+  Droplet,
+} from "lucide-react";
+import { motion } from "framer-motion";
 import Loading from "../Pages/Loading";
+import {
+  ScrollReveal,
+  StaggerContainer,
+  StaggerItem,
+  HoverLiftCard,
+  AnimatedCounter,
+} from "../Components/Animations";
+
+const { Title, Text } = Typography;
 
 const VolunteerDashboard = () => {
   const { user } = useContext(AuthContext);
+  const { isDarkMode, theme } = useTheme();
   const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [stats, setStats] = useState({
+    pending: 0,
+    inProgress: 0,
+    completed: 0,
+    total: 0,
+  });
 
-  // Fetch paginated requests
   useEffect(() => {
-    const fetchRequests = async () => {
-      setLoading(true);
-      try {
-        const res = await axiosSecure.get(
-          `/donation-request?page=${currentPage}&size=8`
-        );
-        setRequests(res.data.requests || []);
-        setTotalPages(res.data.totalPages || 1);
-      } catch (err) {
-        console.error("Failed to load requests", err);
-        toast.error("Failed to load requests");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchRequests();
-  }, [axiosSecure, currentPage]);
+  }, [currentPage]);
+
+  const fetchRequests = async () => {
+    setLoading(true);
+    try {
+      const res = await axiosSecure.get(
+        `/donation-request?page=${currentPage}&size=10`
+      );
+      const allRequests = res.data.requests || [];
+      setRequests(allRequests);
+      setTotalItems(res.data.totalRequests || res.data.total || 0);
+      setStats({
+        pending: allRequests.filter((r) => r.donation_status === "pending")
+          .length,
+        inProgress: allRequests.filter(
+          (r) => r.donation_status === "inprogress"
+        ).length,
+        completed: allRequests.filter((r) => r.donation_status === "done")
+          .length,
+        total: res.data.totalRequests || res.data.total || 0,
+      });
+    } catch (err) {
+      toast.error("Failed to load requests");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      done: "#22c55e",
+      pending: "#eab308",
+      inprogress: "#3b82f6",
+      canceled: "#ef4444",
+    };
+    return colors[status] || "#6b7280";
+  };
+
+  const cardStyle = {
+    backgroundColor: theme.colors.card,
+    borderColor: theme.colors.border,
+    borderRadius: "12px",
+  };
+
+  const columns = [
+    {
+      title: "Recipient",
+      key: "recipient",
+      render: (_, record) => (
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+            <Droplet size={14} className="text-red-500" />
+          </div>
+          <div>
+            <Text strong style={{ color: theme.colors.text }}>
+              {record.recipientName}
+            </Text>
+            <Text
+              style={{ color: theme.colors.textSecondary }}
+              className="text-xs block"
+            >
+              {record.blood_group}
+            </Text>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Location",
+      key: "location",
+      render: (_, record) => (
+        <div className="flex items-center gap-1">
+          <MapPin size={12} style={{ color: theme.colors.textSecondary }} />
+          <Text
+            style={{ color: theme.colors.textSecondary }}
+            className="text-sm"
+          >
+            {record.district}, {record.upazila}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: "Date",
+      dataIndex: "donation_date",
+      key: "date",
+      render: (date) => (
+        <Text style={{ color: theme.colors.textSecondary }}>
+          {date || "Not set"}
+        </Text>
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "donation_status",
+      key: "status",
+      render: (status) => (
+        <span
+          className="px-2 py-1 rounded-full text-xs font-medium capitalize"
+          style={{
+            backgroundColor: `${getStatusColor(status)}20`,
+            color: getStatusColor(status),
+          }}
+        >
+          {status}
+        </span>
+      ),
+    },
+    {
+      title: "",
+      key: "action",
+      render: (_, record) => (
+        <Button
+          type="primary"
+          size="small"
+          icon={<Eye size={14} />}
+          onClick={() => navigate(`/donation-request/${record._id}`)}
+          className="bg-blue-500 border-blue-500"
+        >
+          View
+        </Button>
+      ),
+    },
+  ];
+
+  if (loading && currentPage === 1) return <Loading />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-500 p-8 rounded-2xl shadow-lg text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-24 -mb-24"></div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                <span className="text-2xl">🤝</span>
-              </div>
-              <h1 className="text-3xl md:text-4xl font-bold">
-                Volunteer Dashboard
-              </h1>
-            </div>
-            <p className="text-xl md:text-2xl font-semibold text-white/90">
-              {user?.displayName}
-            </p>
-            <p className="text-white/80 mt-2">View and manage all blood donation requests</p>
-          </div>
+    <div
+      className={`p-6 ${
+        isDarkMode ? "bg-gray-900" : "bg-gray-50"
+      } min-h-screen`}
+    >
+      {/* Welcome */}
+      <ScrollReveal>
+        <div className="mb-6">
+          <Title level={3} style={{ color: theme.colors.text, margin: 0 }}>
+            Welcome, {user?.name} 🌟
+          </Title>
+          <Text style={{ color: theme.colors.textSecondary }}>
+            Volunteer Dashboard - Help manage blood donation requests
+          </Text>
         </div>
+      </ScrollReveal>
 
-        {/* All Requests Table */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 px-8 py-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                  <span className="text-blue-600">🩸</span>
-                  All Blood Donation Requests
-                </h2>
-                <p className="text-gray-600 text-sm mt-1">Monitor and track all donation requests</p>
-              </div>
-              <div className="hidden md:block px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
-                Page {currentPage} of {totalPages}
-              </div>
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="table w-full">
-              <thead className="bg-gray-50">
-                <tr className="text-left text-gray-700 text-sm font-semibold">
-                  <th className="py-4 px-6">Recipient Info</th>
-                  <th className="py-4 px-6">Location</th>
-                  <th className="py-4 px-6">Blood Type</th>
-                  <th className="py-4 px-6">Schedule</th>
-                  <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan="6" className="text-center py-12">
-                      <div className="flex flex-col items-center gap-3">
-                        <span className="loading loading-spinner loading-lg text-blue-600"></span>
-                        <p className="text-gray-600 font-medium"><Loading/> requests...</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : requests.length > 0 ? (
-                  requests.map((req) => (
-                    <tr key={req._id} className="hover:bg-blue-50/50 transition-colors border-b border-gray-100 last:border-0">
-                      <td className="py-4 px-6">
-                        <div className="font-semibold text-gray-800">{req.recipientName}</div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="flex items-start gap-1 text-gray-700">
-                          <span className="text-blue-500 mt-0.5">📍</span>
-                          <div>
-                            <div className="font-medium">{req.district}</div>
-                            <div className="text-sm text-gray-500">{req.upazila}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-700 rounded-full text-sm font-bold">
-                          🩸 {req.blood_group}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-gray-700">
-                            <span className="text-purple-500">📅</span>
-                            <span className="text-sm font-medium">{req.donation_date}</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-gray-600">
-                            <span className="text-purple-500">🕒</span>
-                            <span className="text-sm">{req.donation_time}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold ${
-                          req.donation_status === "pending" ? "bg-yellow-100 text-yellow-700" :
-                          req.donation_status === "inprogress" ? "bg-blue-100 text-blue-700" :
-                          req.donation_status === "done" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
-                        }`}>
-                          {req.donation_status === "pending" && "⏳"}
-                          {req.donation_status === "inprogress" && "🔄"}
-                          {req.donation_status === "done" && "✅"}
-                          {req.donation_status === "canceled" && "❌"}
-                          <span className="capitalize">{req.donation_status}</span>
-                        </span>
-                      </td>
-                      <td className="py-4 px-6">
-                        <Link
-                          to={`/donation-request/${req._id}`}
-                          className="inline-flex items-center gap-1 px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors"
+      {/* Stats */}
+      <StaggerContainer>
+        <Row gutter={[16, 16]} className="mb-6">
+          {[
+            {
+              icon: FileText,
+              title: "Total Requests",
+              value: stats.total,
+              color: "#8b5cf6",
+            },
+            {
+              icon: Clock,
+              title: "Pending",
+              value: stats.pending,
+              color: "#eab308",
+            },
+            {
+              icon: Activity,
+              title: "In Progress",
+              value: stats.inProgress,
+              color: "#3b82f6",
+            },
+            {
+              icon: CheckCircle,
+              title: "Completed",
+              value: stats.completed,
+              color: "#22c55e",
+            },
+          ].map((stat) => (
+            <Col xs={12} md={6} key={stat.title}>
+              <StaggerItem>
+                <HoverLiftCard>
+                  <Card style={cardStyle} className="border-0 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <motion.div
+                        className="p-2 rounded-lg"
+                        style={{ backgroundColor: `${stat.color}15` }}
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                      >
+                        <stat.icon size={20} style={{ color: stat.color }} />
+                      </motion.div>
+                      <div>
+                        <Text
+                          style={{ color: theme.colors.textSecondary }}
+                          className="text-xs"
                         >
-                          👁️ View Details
-                        </Link>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="text-center py-12">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="text-6xl">📭</div>
-                        <p className="text-gray-600 font-medium text-lg">No donation requests found</p>
-                        <p className="text-gray-500 text-sm">Check back later for new requests</p>
+                          {stat.title}
+                        </Text>
+                        <Title
+                          level={4}
+                          style={{ color: theme.colors.text, margin: 0 }}
+                        >
+                          <AnimatedCounter end={stat.value} duration={1.5} />
+                        </Title>
                       </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                  </Card>
+                </HoverLiftCard>
+              </StaggerItem>
+            </Col>
+          ))}
+        </Row>
+      </StaggerContainer>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-3 py-8 bg-gradient-to-r from-blue-50 to-purple-50">
-              <button
-                className="px-4 py-2 bg-white border-2 border-blue-300 text-blue-700 font-semibold rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              >
-                ← Previous
-              </button>
-
-              <div className="flex gap-2">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  return (
-                    <button
-                      key={pageNum}
-                      className={`w-10 h-10 font-semibold rounded-lg transition-all ${
-                        currentPage === pageNum 
-                          ? "bg-gradient-to-r from-blue-600 to-purple-500 text-white shadow-lg scale-110" 
-                          : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-400"
-                      }`}
-                      onClick={() => setCurrentPage(pageNum)}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                className="px-4 py-2 bg-white border-2 border-blue-300 text-blue-700 font-semibold rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              >
-                Next →
-              </button>
+      {/* Requests Table */}
+      <Card
+        style={cardStyle}
+        className="border-0 shadow-sm"
+        title={
+          <Text strong style={{ color: theme.colors.text }}>
+            Blood Donation Requests
+          </Text>
+        }
+      >
+        {requests.length > 0 ? (
+          <>
+            <Table
+              columns={columns}
+              dataSource={requests}
+              rowKey="_id"
+              pagination={false}
+              loading={loading}
+              scroll={{ x: 600 }}
+            />
+            <div className="flex justify-center mt-4">
+              <Pagination
+                current={currentPage}
+                onChange={(page) => setCurrentPage(page)}
+                total={totalItems}
+                pageSize={10}
+                showSizeChanger={false}
+              />
             </div>
-          )}
-        </div>
-      </div>
+          </>
+        ) : (
+          <Empty description="No blood requests found" />
+        )}
+      </Card>
     </div>
   );
 };

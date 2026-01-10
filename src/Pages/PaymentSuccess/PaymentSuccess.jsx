@@ -1,167 +1,225 @@
-// import React, { useEffect } from "react";
-// import { useSearchParams } from "react-router-dom";
-// import useAxios from "../../hooks/useAxios";
-// import { CheckCircleIcon } from "@heroicons/react/24/solid";
-
-// function PaymentSuccess() {
-//   const [searchParams] = useSearchParams();
-//   const session_id = searchParams.get("session_id");
-//   const axios = useAxios();
-
-//   useEffect(() => {
-//     if (session_id) {
-//       axios
-//         .post(`/payment-success?session_id=${session_id}`)
-//         .then((res) => {
-//           console.log("Payment success recorded:", res.data);
-//         })
-//         .catch((err) => {
-//           console.error("Error recording payment success:", err);
-//         });
-//     }
-//   }, [axios, session_id]);
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
-//       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-green-200">
-//         {/* Header with success icon */}
-//         <div className="bg-green-600 py-8 flex flex-col items-center justify-center">
-//           <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-4 animate-pulse">
-//             <CheckCircleIcon className="h-12 w-12 text-green-600" />
-//           </div>
-//           <h1 className="text-2xl font-bold text-white">Payment Successful!</h1>
-//         </div>
-
-//         {/* Content */}
-//         <div className="p-6 text-center">
-//           <p className="text-gray-700 mb-2">
-//             Thank you for your generous support!
-//           </p>
-//           <p className="text-gray-600 text-sm mb-6">
-//             Your contribution helps save lives and support our mission.
-//           </p>
-
-//           {/* Optional: Show session ID (remove in production if not needed) */}
-//           {session_id && (
-//             <div className="bg-gray-100 text-gray-500 text-xs p-3 rounded-lg mb-6 font-mono">
-//               Session: {session_id.substring(0, 8)}...
-//             </div>
-//           )}
-
-//           <div className="space-y-3">
-//             <button
-//               onClick={() => window.location.href = "/"}
-//               className="w-full btn btn-primary"
-//             >
-//               Back to Home
-//             </button>
-//             <button
-//               onClick={() => window.location.href = "/funding"}
-//               className="w-full btn btn-outline"
-//             >
-//                 Make Another Donation
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Decorative bottom */}
-//         <div className="h-1 bg-gradient-to-r from-green-400 to-emerald-500"></div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default PaymentSuccess;
-
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import useAxios from "../../hooks/useAxios";
+import { useTheme } from "../../Context/ThemeContext";
+import { Button, Typography, Card, Space } from "antd";
+import {
+  HomeOutlined,
+  FundOutlined,
+  HeartFilled,
+  CheckCircleFilled,
+} from "@ant-design/icons";
+import { motion, AnimatePresence } from "framer-motion";
+import { ScrollReveal } from "../../Components/Animations";
+
+const { Text, Title, Paragraph } = Typography;
 
 function PaymentSuccess() {
   const [searchParams] = useSearchParams();
   const session_id = searchParams.get("session_id");
-  const axios = useAxios();
+  const axiosPublic = useAxios();
+  const { isDarkMode } = useTheme();
+  const [showConfetti, setShowConfetti] = useState(true);
 
   useEffect(() => {
     if (session_id) {
-      axios
+      axiosPublic
         .post(`/payment-success?session_id=${session_id}`)
-        .then((res) => {
-          console.log("Payment success recorded:", res.data);
-        })
-        .catch((err) => {
-          console.error("Error recording payment success:", err);
-        });
+        .then((res) => console.log("Payment success recorded:", res.data))
+        .catch((err) => console.error("Error recording payment success:", err));
     }
-  }, [axios, session_id]);
+    const timer = setTimeout(() => setShowConfetti(false), 5000);
+    return () => clearTimeout(timer);
+  }, [axiosPublic, session_id]);
+
+  const confettiColors = [
+    "#ef4444",
+    "#22c55e",
+    "#3b82f6",
+    "#f59e0b",
+    "#ec4899",
+  ];
+  const confettiParticles = Array.from({ length: 40 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+    delay: Math.random() * 2,
+    duration: 3 + Math.random() * 2,
+  }));
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-4">
-      <div className="max-w-md w-full">
-        {/* Success Card */}
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
-          {/* Header with success animation */}
-          <div className="bg-gradient-to-r from-green-600 to-emerald-500 py-12 flex flex-col items-center justify-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
-            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center mb-4 animate-bounce">
-              <svg className="h-16 w-16 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Payment Successful!</h1>
-            <p className="text-white/90">Thank you for your generosity</p>
+    <div
+      className={`min-h-screen relative overflow-hidden ${
+        isDarkMode
+          ? "bg-gray-900"
+          : "bg-gradient-to-br from-emerald-50 via-white to-green-50"
+      }`}
+    >
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute w-[500px] h-[500px] rounded-full bg-emerald-500/20 blur-3xl"
+          animate={{ x: [0, 100, 0], y: [0, 50, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          style={{ top: "-10%", left: "-10%" }}
+        />
+      </div>
+
+      <AnimatePresence>
+        {showConfetti && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
+            {confettiParticles.map((p) => (
+              <motion.div
+                key={p.id}
+                className="absolute w-3 h-3 rounded-sm"
+                style={{ left: `${p.x}%`, backgroundColor: p.color }}
+                initial={{ y: -20, opacity: 1, rotate: 0 }}
+                animate={{ y: "100vh", opacity: [1, 1, 0], rotate: 360 }}
+                transition={{
+                  duration: p.duration,
+                  delay: p.delay,
+                  ease: "linear",
+                }}
+              />
+            ))}
           </div>
+        )}
+      </AnimatePresence>
 
-          {/* Content */}
-          <div className="p-8 text-center space-y-6">
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6">
-              <p className="text-gray-700 text-lg font-medium mb-2">
-                🎉 Your donation has been received!
-              </p>
-              <p className="text-gray-600 text-sm">
-                Your contribution helps save lives and support our mission.
-              </p>
-            </div>
-
-            {/* Session ID */}
-            {session_id && (
-              <div className="bg-gray-100 text-gray-500 text-xs p-4 rounded-lg font-mono">
-                <p className="text-gray-700 font-semibold mb-1">Transaction ID</p>
-                {session_id.substring(0, 16)}...
+      <div className="relative z-20 min-h-screen flex items-center justify-center p-4">
+        <ScrollReveal>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card
+              className={`max-w-xl w-full shadow-2xl rounded-3xl border-0 ${
+                isDarkMode ? "bg-gray-800" : ""
+              }`}
+            >
+              <div className="flex justify-center pt-8">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring" }}
+                  className="relative"
+                >
+                  <motion.div
+                    className="w-24 h-24 rounded-full bg-emerald-100 flex items-center justify-center"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <CheckCircleFilled className="text-5xl text-emerald-500" />
+                  </motion.div>
+                  <motion.div
+                    className="absolute inset-0 rounded-full border-4 border-emerald-500"
+                    initial={{ scale: 0.8, opacity: 1 }}
+                    animate={{ scale: 1.5, opacity: 0 }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  />
+                </motion.div>
               </div>
-            )}
 
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              <Link
-                to="/"
-                className="block w-full py-4 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-bold rounded-xl hover:shadow-xl transform hover:scale-105 transition-all"
-              >
-                🏠 Back to Home
-              </Link>
-              <Link
-                to="/funding"
-                className="block w-full py-4 bg-white border-2 border-green-300 text-green-700 font-semibold rounded-xl hover:bg-green-50 transition-all"
-              >
-                💰 View All Donations
-              </Link>
-              <Link
-                to="/funding/donate"
-                className="block w-full py-4 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all"
-              >
-                🎁 Make Another Donation
-              </Link>
-            </div>
+              <div className="text-center px-8 py-6">
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <Title level={2} className={isDarkMode ? "text-white" : ""}>
+                    Payment Successful!
+                  </Title>
+                </motion.div>
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <Text type="secondary" className="text-lg block mb-2">
+                    Thank you for your incredible generosity!
+                  </Text>
+                  <Text type="secondary">
+                    Your donation helps save lives and support our mission.
+                  </Text>
+                </motion.div>
 
-            {/* Thank you message */}
-            <p className="text-sm text-gray-500 pt-4 border-t border-gray-200">
-              💚 You're making a real difference in people's lives
-            </p>
-          </div>
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className={`mt-6 p-6 rounded-2xl ${
+                    isDarkMode
+                      ? "bg-gray-700 border-gray-600"
+                      : "bg-emerald-50 border-emerald-100"
+                  } border`}
+                >
+                  <Paragraph
+                    strong
+                    className={
+                      isDarkMode ? "text-gray-300" : "text-emerald-700"
+                    }
+                  >
+                    Transaction Details
+                  </Paragraph>
+                  <Text code className="text-emerald-600 font-mono text-sm">
+                    ID: {session_id || "N/A"}
+                  </Text>
+                  <div
+                    className={`h-px ${
+                      isDarkMode ? "bg-gray-600" : "bg-emerald-200"
+                    } w-full my-4`}
+                  />
+                  <Paragraph
+                    className={`mb-0 italic ${
+                      isDarkMode ? "text-gray-400" : "text-emerald-600"
+                    }`}
+                  >
+                    "Alone we can do so little; together we can do so much."
+                  </Paragraph>
+                </motion.div>
 
-          {/* Decorative bottom */}
-          <div className="h-2 bg-gradient-to-r from-green-400 to-emerald-500"></div>
-        </div>
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="mt-8 space-y-4"
+                >
+                  <Link to="/" className="block">
+                    <Button
+                      type="primary"
+                      size="large"
+                      block
+                      icon={<HomeOutlined />}
+                      className="h-12 text-lg font-bold rounded-xl bg-emerald-500 hover:bg-emerald-600 border-0"
+                    >
+                      Back to Home
+                    </Button>
+                  </Link>
+                  <Space size="middle" className="w-full justify-center">
+                    <Link to="/funding">
+                      <Button
+                        size="large"
+                        icon={<FundOutlined />}
+                        className="rounded-xl"
+                      >
+                        View Contributions
+                      </Button>
+                    </Link>
+                    <Link to="/funding">
+                      <Button
+                        size="large"
+                        icon={<HeartFilled />}
+                        className="rounded-xl"
+                      >
+                        Donate Again
+                      </Button>
+                    </Link>
+                  </Space>
+                </motion.div>
+              </div>
+            </Card>
+          </motion.div>
+        </ScrollReveal>
       </div>
     </div>
   );

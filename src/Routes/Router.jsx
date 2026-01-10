@@ -12,14 +12,21 @@ import PaymentSuccess from "../Pages/PaymentSuccess/PaymentSuccess";
 import PaymentFailed from "../Pages/PaymentFailed/PaymentFailed";
 import DonationRequestDetails from "../Pages/Donate/DonationRequestDetails";
 import Funding from "../Pages/Funding/Funding";
+import Statistics from "../Pages/Statistics/Statistics";
+import About from "../Pages/About/About";
+import Contact from "../Pages/Contact/Contact";
+import FAQ from "../Pages/FAQ/FAQ";
 
 // Dashboard
 import DashboardLayout from "../Dashboard/DashboardLayout";
 import MainDashboard from "../Dashboard/MainDashboard";
 import AddRequest from "../Dashboard/AddProduct/AddRequest";
 import MyRequest from "../Dashboard/MyRequest/MyRequest";
+import ContactMessages from "../Dashboard/ContactMessages/ContactMessages";
+import Messages from "../Dashboard/Messages/Messages";
 
 import PrivateRoute from "./PrivateRoute";
+import AdminRoute from "./AdminRoute";
 import AllUsers from "../Dashboard/AllUsers/AllUsers";
 import Profile from "../Dashboard/Profile/Profile";
 import FundingPage from "../Pages/Funding/FundingPage";
@@ -36,6 +43,9 @@ const router = createBrowserRouter([
       { path: "register", element: <Register /> },
       { path: "donation-request", element: <DonationRequest /> },
       { path: "search", element: <SearchRequest /> },
+      { path: "about", element: <About /> },
+      { path: "contact", element: <Contact /> },
+      { path: "faq", element: <FAQ /> },
       { path: "payment-success", element: <PaymentSuccess /> },
       { path: "payment-failed", element: <PaymentFailed /> },
       {
@@ -54,7 +64,14 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-     
+      {
+        path: "statistics",
+        element: (
+          <PrivateRoute>
+            <Statistics />
+          </PrivateRoute>
+        ),
+      },
     ],
   },
   {
@@ -69,11 +86,18 @@ const router = createBrowserRouter([
       { path: "add-request", element: <AddRequest /> },
       { path: "my-request", element: <MyRequest /> },
       { path: "donation-request", element: <DonationRequest /> },
-      { path: "all-users", element: <AllUsers /> },
+      {
+        path: "all-users",
+        element: (
+          <AdminRoute>
+            <AllUsers />
+          </AdminRoute>
+        ),
+      },
       { path: "funding", element: <Funding /> },
       { path: "profile", element: <Profile /> },
       { path: "edit-request/:id", element: <EditRequest /> },
-       {
+      {
         path: "funding-page",
         element: (
           <PrivateRoute>
@@ -81,6 +105,15 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+      {
+        path: "contacts",
+        element: (
+          <AdminRoute>
+            <ContactMessages />
+          </AdminRoute>
+        ),
+      },
+      { path: "messages", element: <Messages /> },
     ],
   },
 ]);

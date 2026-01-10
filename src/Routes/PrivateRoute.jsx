@@ -4,12 +4,12 @@ import { AuthContext } from "../Context/AuthProvider";
 import Loading from "../Pages/Loading";
 
 const PrivateRoute = ({ children }) => {
-  const { user, loading, roleLoading, userStatus } = useContext(AuthContext);
-  if(loading || roleLoading){
-    return <p><Loading/></p>
+  const { user, loading, userStatus } = useContext(AuthContext);
+  if(loading){
+    return <div><Loading/></div>
   }
 
-  if (!user || !userStatus == 'active') {
+  if (!user || userStatus !== "active") {
     return <Navigate to="/login" />;
   }
 

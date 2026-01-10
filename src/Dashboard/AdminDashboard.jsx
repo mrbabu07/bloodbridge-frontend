@@ -1,356 +1,343 @@
-
-// import React, { useContext, useEffect, useState } from "react";
-// import { AuthContext } from "../Context/AuthProvider";
-// import useAxiosSecure from "../hooks/useAxiosSecure";
-// import toast from "react-hot-toast";
-
-// const AdminDashboard = () => {
-//   const { user } = useContext(AuthContext);
-//   const axiosSecure = useAxiosSecure();
-//   const [stats, setStats] = useState({
-//     totalUsers: 0,
-//     totalFunding: 0,
-//     totalRequests: 0,
-//   });
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchStats = async () => {
-//       try {
-//         // Fetch all 3 stats in parallel
-//         const [usersRes, fundingRes, requestsRes] = await Promise.all([
-//           axiosSecure.get("/users"),
-//           axiosSecure.get("/funding/summary"),
-//           axiosSecure.get("/donation-requests?field=count"),
-//         ]);
-
-//         setStats({
-//           totalUsers: usersRes.data.length,
-//           totalFunding: fundingRes.data.total || 0,
-//           totalRequests: requestsRes.data.count || 0,
-//         });
-//         setLoading(false);
-//       } catch (err) {
-//         console.error("Failed to load stats", err);
-//         toast.error("Failed to load dashboard stats");
-//         setLoading(false);
-//       }
-//     };
-//     fetchStats();
-//   }, [axiosSecure]);
-
-//   return (
-//     <div className="space-y-8">
-//       {/* Welcome Section (Same as Donor Dashboard) */}
-//       <div className="bg-white p-6 rounded-xl shadow-sm">
-//         <h1 className="text-2xl font-bold text-gray-800">
-//           Welcome, <span className="text-red-600">{user?.displayName}</span>!
-//         </h1>
-//         <p className="text-gray-600">Admin dashboard for blood donation management.</p>
-//       </div>
-
-//       {/* Stats Cards */}
-//       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-//         {/* Total Users */}
-//         <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
-//           <div className="flex items-center">
-//             <div className="p-3 bg-blue-100 rounded-lg mr-4">
-//               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-6-6v1z" />
-//               </svg>
-//             </div>
-//             <div>
-//               <p className="text-gray-500 text-sm">Total Users</p>
-//               <p className="text-2xl font-bold text-gray-800">{stats.totalUsers}</p>
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Total Funding */}
-//         <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-//           <div className="flex items-center">
-//             <div className="p-3 bg-green-100 rounded-lg mr-4">
-//               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-//               </svg>
-//             </div>
-//             <div>
-//               <p className="text-gray-500 text-sm">Total Funding (USD)</p>
-//               <p className="text-2xl font-bold text-gray-800">${stats.totalFunding.toFixed(2)}</p>
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Total Requests */}
-//         <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500">
-//           <div className="flex items-center">
-//             <div className="p-3 bg-red-100 rounded-lg mr-4">
-//               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-//               </svg>
-//             </div>
-//             <div>
-//               <p className="text-gray-500 text-sm">Total Requests</p>
-//               <p className="text-2xl font-bold text-gray-800">{stats.totalRequests}</p>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default AdminDashboard;
-
-// 
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../Context/AuthProvider";
+import { useTheme } from "../Context/ThemeContext";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import toast from "react-hot-toast";
+import { Card, Row, Col, Typography, Button, Table, Empty } from "antd";
+import {
+  Users,
+  DollarSign,
+  FileText,
+  Heart,
+  ArrowRight,
+  Clock,
+  CheckCircle,
+  MapPin,
+  Droplet,
+} from "lucide-react";
 import { motion } from "framer-motion";
-import { Users, DollarSign, FileText, TrendingUp, Loader2 } from "lucide-react";
 import Loading from "../Pages/Loading";
+import { useNavigate } from "react-router-dom";
+import {
+  ScrollReveal,
+  StaggerContainer,
+  StaggerItem,
+  HoverLiftCard,
+  AnimatedCounter,
+} from "../Components/Animations";
+
+const { Title, Text } = Typography;
 
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
+  const { isDarkMode, theme } = useTheme();
   const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalFunding: 0,
     totalRequests: 0,
   });
+  const [recentRequests, setRecentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
-        // Fetch all 3 stats in parallel
-        const [usersRes, fundingRes, requestsRes] = await Promise.all([
-          axiosSecure.get("/users"),
-          axiosSecure.get("/funding/summary"),
-          axiosSecure.get("/donation-request?field=count"),
-        ]);
-
+        const statsRes = await axiosSecure.get("/admin-stats");
         setStats({
-          totalUsers: usersRes.data.length,
-          totalFunding: fundingRes.data.total || 0,
-          totalRequests: requestsRes.data.count || 0,
+          totalUsers: statsRes.data.totalUsers || 0,
+          totalFunding: statsRes.data.totalFunding || 0,
+          totalRequests: statsRes.data.totalRequests || 0,
         });
+
+        const requestsRes = await axiosSecure
+          .get("/donation-request?page=1&size=5")
+          .catch(() => ({ data: { requests: [] } }));
+        setRecentRequests(requestsRes.data.requests || []);
         setLoading(false);
       } catch (err) {
-        console.error("Failed to load stats", err);
         toast.error("Failed to load dashboard stats");
         setLoading(false);
       }
     };
-    fetchStats();
+    fetchData();
   }, [axiosSecure]);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
+  if (loading) return <Loading />;
+
+  const cardStyle = {
+    backgroundColor: theme.colors.card,
+    borderColor: theme.colors.border,
+    borderRadius: "12px",
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+  const StatCard = ({ icon: Icon, title, value, color, onClick }) => (
+    <HoverLiftCard>
+      <Card
+        style={cardStyle}
+        className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+        onClick={onClick}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <Text
+              style={{ color: theme.colors.textSecondary }}
+              className="text-sm"
+            >
+              {title}
+            </Text>
+            <Title
+              level={2}
+              style={{ color: theme.colors.text, margin: "4px 0 0" }}
+            >
+              <AnimatedCounter end={value} duration={1.5} />
+            </Title>
+          </div>
+          <motion.div
+            className="p-3 rounded-xl"
+            style={{ backgroundColor: `${color}15` }}
+            whileHover={{ scale: 1.1, rotate: 5 }}
+          >
+            <Icon size={24} style={{ color }} />
+          </motion.div>
+        </div>
+      </Card>
+    </HoverLiftCard>
+  );
+
+  const getStatusColor = (status) => {
+    const colors = {
+      done: "#22c55e",
+      pending: "#eab308",
+      inprogress: "#3b82f6",
+      canceled: "#ef4444",
+    };
+    return colors[status] || "#6b7280";
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+  const columns = [
+    {
+      title: "Recipient",
+      key: "recipient",
+      render: (_, record) => (
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+            <Droplet size={14} className="text-red-500" />
+          </div>
+          <div>
+            <Text strong style={{ color: theme.colors.text }}>
+              {record.recipientName}
+            </Text>
+            <Text
+              style={{ color: theme.colors.textSecondary }}
+              className="text-xs block"
+            >
+              {record.blood_group}
+            </Text>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Location",
+      key: "location",
+      render: (_, record) => (
+        <Text style={{ color: theme.colors.textSecondary }} className="text-sm">
+          {record.district}
+        </Text>
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "donation_status",
+      key: "status",
+      render: (status) => (
+        <span
+          className="px-2 py-1 rounded-full text-xs font-medium capitalize"
+          style={{
+            backgroundColor: `${getStatusColor(status)}20`,
+            color: getStatusColor(status),
+          }}
         >
-          <Loader2 size={48} className="text-red-600" />
-        </motion.div>
-        <p className="mt-4 text-gray-600 font-medium"><Loading/> dashboard...</p>
-      </div>
-    );
-  }
+          {status}
+        </span>
+      ),
+    },
+    {
+      title: "",
+      key: "action",
+      render: (_, record) => (
+        <Button
+          type="link"
+          size="small"
+          onClick={() => navigate(`/donation-request/${record._id}`)}
+        >
+          View
+        </Button>
+      ),
+    },
+  ];
 
   return (
-    <div className="p-4 md:p-8 space-y-8">
-      {/* Welcome Section */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-gradient-to-r from-red-600 to-red-700 text-white p-8 rounded-3xl shadow-2xl relative overflow-hidden"
-      >
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-          }}></div>
+    <div
+      className={`p-6 ${
+        isDarkMode ? "bg-gray-900" : "bg-gray-50"
+      } min-h-screen`}
+    >
+      {/* Welcome */}
+      <ScrollReveal>
+        <div className="mb-6">
+          <Title level={3} style={{ color: theme.colors.text, margin: 0 }}>
+            Welcome back, {user?.name} 👋
+          </Title>
+          <Text style={{ color: theme.colors.textSecondary }}>
+            Here's what's happening with your platform today.
+          </Text>
         </div>
-        <div className="relative z-10">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2, type: "spring" }}
-          >
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">
-              Welcome back, <span className="text-red-100">{user?.displayName}</span>! 👋
-            </h1>
-          </motion.div>
-          <p className="text-red-100 text-lg">Admin dashboard for blood donation management</p>
-        </div>
-      </motion.div>
+      </ScrollReveal>
 
-      {/* Stats Cards */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="grid grid-cols-1 md:grid-cols-3 gap-6"
-      >
-        {/* Total Users Card */}
-        <motion.div
-          variants={itemVariants}
-          whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(59, 130, 246, 0.3)" }}
-          className="bg-white rounded-2xl shadow-lg border-l-4 border-blue-500 p-6 hover:shadow-2xl transition-all duration-300"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-blue-100 p-4 rounded-2xl">
-              <Users size={32} className="text-blue-600" />
-            </div>
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.5, type: "spring" }}
-              className="bg-blue-50 px-3 py-1 rounded-full"
-            >
-              <TrendingUp size={16} className="text-blue-600 inline mr-1" />
-              <span className="text-blue-600 text-sm font-bold">Active</span>
-            </motion.div>
-          </div>
-          <div>
-            <p className="text-gray-500 text-sm font-semibold mb-1">Total Users (Donors)</p>
-            <motion.p
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-4xl font-bold text-gray-800"
-            >
-              {stats.totalUsers}
-            </motion.p>
-            <p className="text-xs text-gray-400 mt-2">Registered blood donors</p>
-          </div>
-        </motion.div>
+      {/* Stats */}
+      <StaggerContainer>
+        <Row gutter={[16, 16]} className="mb-6">
+          <Col xs={24} sm={8}>
+            <StaggerItem>
+              <StatCard
+                icon={Users}
+                title="Total Users"
+                value={stats.totalUsers}
+                color="#3b82f6"
+                onClick={() => navigate("/dashboard/all-users")}
+              />
+            </StaggerItem>
+          </Col>
+          <Col xs={24} sm={8}>
+            <StaggerItem>
+              <StatCard
+                icon={FileText}
+                title="Blood Requests"
+                value={stats.totalRequests}
+                color="#ef4444"
+                onClick={() => navigate("/dashboard/donation-request")}
+              />
+            </StaggerItem>
+          </Col>
+          <Col xs={24} sm={8}>
+            <StaggerItem>
+              <StatCard
+                icon={DollarSign}
+                title="Total Funding"
+                value={stats.totalFunding}
+                color="#22c55e"
+                onClick={() => navigate("/dashboard/funding")}
+              />
+            </StaggerItem>
+          </Col>
+        </Row>
+      </StaggerContainer>
 
-        {/* Total Funding Card */}
-        <motion.div
-          variants={itemVariants}
-          whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(34, 197, 94, 0.3)" }}
-          className="bg-white rounded-2xl shadow-lg border-l-4 border-green-500 p-6 hover:shadow-2xl transition-all duration-300"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-green-100 p-4 rounded-2xl">
-              <DollarSign size={32} className="text-green-600" />
-            </div>
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.6, type: "spring" }}
-              className="bg-green-50 px-3 py-1 rounded-full"
-            >
-              <TrendingUp size={16} className="text-green-600 inline mr-1" />
-              <span className="text-green-600 text-sm font-bold">Growth</span>
-            </motion.div>
-          </div>
-          <div>
-            <p className="text-gray-500 text-sm font-semibold mb-1">Total Funding</p>
-            <motion.p
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-4xl font-bold text-gray-800"
-            >
-              ${stats.totalFunding.toFixed(2)}
-            </motion.p>
-            <p className="text-xs text-gray-400 mt-2">Total donations received</p>
-          </div>
-        </motion.div>
+      {/* Quick Actions & Recent Requests */}
+      <ScrollReveal delay={0.2}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={8}>
+            <HoverLiftCard liftAmount={-4}>
+              <Card
+                style={cardStyle}
+                className="border-0 shadow-sm"
+                title={
+                  <Text strong style={{ color: theme.colors.text }}>
+                    Quick Actions
+                  </Text>
+                }
+              >
+                <div className="space-y-3">
+                  {[
+                    {
+                      icon: Users,
+                      label: "Manage Users",
+                      path: "/dashboard/all-users",
+                      color: "#3b82f6",
+                    },
+                    {
+                      icon: FileText,
+                      label: "View Requests",
+                      path: "/dashboard/donation-request",
+                      color: "#ef4444",
+                    },
+                    {
+                      icon: DollarSign,
+                      label: "Funding",
+                      path: "/dashboard/funding",
+                      color: "#22c55e",
+                    },
+                  ].map((action) => (
+                    <motion.button
+                      key={action.label}
+                      onClick={() => navigate(action.path)}
+                      className="w-full flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                      whileHover={{ x: 5 }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <motion.div
+                          className="p-2 rounded-lg"
+                          style={{ backgroundColor: `${action.color}15` }}
+                          whileHover={{ scale: 1.1 }}
+                        >
+                          <action.icon
+                            size={18}
+                            style={{ color: action.color }}
+                          />
+                        </motion.div>
+                        <Text style={{ color: theme.colors.text }}>
+                          {action.label}
+                        </Text>
+                      </div>
+                      <ArrowRight
+                        size={16}
+                        style={{ color: theme.colors.textSecondary }}
+                      />
+                    </motion.button>
+                  ))}
+                </div>
+              </Card>
+            </HoverLiftCard>
+          </Col>
 
-        {/* Total Requests Card */}
-        <motion.div
-          variants={itemVariants}
-          whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(239, 68, 68, 0.3)" }}
-          className="bg-white rounded-2xl shadow-lg border-l-4 border-red-500 p-6 hover:shadow-2xl transition-all duration-300"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-red-100 p-4 rounded-2xl">
-              <FileText size={32} className="text-red-600" />
-            </div>
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.7, type: "spring" }}
-              className="bg-red-50 px-3 py-1 rounded-full"
-            >
-              <TrendingUp size={16} className="text-red-600 inline mr-1" />
-              <span className="text-red-600 text-sm font-bold">Pending</span>
-            </motion.div>
-          </div>
-          <div>
-            <p className="text-gray-500 text-sm font-semibold mb-1">Total Blood Requests</p>
-            <motion.p
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5 }}
-              className="text-4xl font-bold text-gray-800"
-            >
-              {stats.totalRequests}
-            </motion.p>
-            <p className="text-xs text-gray-400 mt-2">All donation requests</p>
-          </div>
-        </motion.div>
-      </motion.div>
-
-      {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6"
-      >
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <motion.a
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            href="/dashboard/all-users"
-            className="flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
-          >
-            <Users size={24} className="text-blue-600" />
-            <span className="font-semibold text-blue-600">Manage Users</span>
-          </motion.a>
-          <motion.a
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            href="/dashboard/donation-request"
-            className="flex items-center gap-3 p-4 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
-          >
-            <FileText size={24} className="text-red-600" />
-            <span className="font-semibold text-red-600">View Requests</span>
-          </motion.a>
-          <motion.a
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            href="/dashboard/funding"
-            className="flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors"
-          >
-            <DollarSign size={24} className="text-green-600" />
-            <span className="font-semibold text-green-600">Manage Funding</span>
-          </motion.a>
-        </div>
-      </motion.div>
+          <Col xs={24} lg={16}>
+            <HoverLiftCard liftAmount={-4}>
+              <Card
+                style={cardStyle}
+                className="border-0 shadow-sm"
+                title={
+                  <Text strong style={{ color: theme.colors.text }}>
+                    Recent Requests
+                  </Text>
+                }
+                extra={
+                  <Button
+                    type="link"
+                    onClick={() => navigate("/dashboard/donation-request")}
+                  >
+                    View All
+                  </Button>
+                }
+              >
+                {recentRequests.length > 0 ? (
+                  <Table
+                    columns={columns}
+                    dataSource={recentRequests}
+                    rowKey="_id"
+                    pagination={false}
+                    size="small"
+                  />
+                ) : (
+                  <Empty description="No recent requests" />
+                )}
+              </Card>
+            </HoverLiftCard>
+          </Col>
+        </Row>
+      </ScrollReveal>
     </div>
   );
 };

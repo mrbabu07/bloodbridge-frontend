@@ -1,180 +1,79 @@
-
-// import { useEffect, useState, useContext } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import useAxios from "../../hooks/useAxios"; // ⚠️ useAxios (not secure) for public page
-// import { AuthContext } from "../../Context/AuthProvider";
-
-// const DonationRequest = () => {
-//   const [requests, setRequests] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [totalPages, setTotalPages] = useState(1);
-//   const axios = useAxios(); // Public API → no auth needed
-//   const { user } = useContext(AuthContext);
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     const fetchRequests = async () => {
-//       setLoading(true);
-//       try {
-//         const res = await axios.get(`/donation-request?status=pending&page=${currentPage}&size=8`);
-//         setRequests(res.data.requests);
-//         setTotalPages(res.data.totalPages);
-//       } catch (err) {
-//         console.error(err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchRequests();
-//   }, [axios, currentPage]);
-
-//   const handleView = (id) => {
-//     if (!user) {
-//       navigate("/login", { state: { from: `/donation-request/${id}` } });
-//     } else {
-//       navigate(`/donation-request/${id}`);
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-red-50 to-white p-4 sm:p-6">
-//       <div className="max-w-6xl mx-auto">
-//         <div className="text-center mb-8">
-//           <h1 className="text-3xl md:text-4xl font-bold text-red-800 mb-2">
-//              Pending Blood Requests
-//           </h1>
-//           <p className="text-gray-600">
-//             These lives are waiting for your help.
-//           </p>
-//         </div>
-
-//         <div className="bg-white rounded-xl shadow overflow-hidden">
-//           {loading ? (
-//             <div className="flex justify-center py-12">
-//               <span className="loading loading-spinner text-red-600"></span>
-//             </div>
-//           ) : requests.length === 0 ? (
-//             <div className="text-center py-12 text-gray-500">
-//               No pending requests found.
-//             </div>
-//           ) : (
-//             <div className="overflow-x-auto">
-//               <table className="table w-full">
-//                 <thead className="bg-gray-50">
-//                   <tr>
-//                     <th>Recipient</th>
-//                     <th>Location</th>
-//                     <th>Blood Group</th>
-//                     <th>Date & Time</th>
-//                     <th>Action</th>
-//                   </tr>
-//                 </thead>
-//                 <tbody>
-//                   {requests.map((req) => (
-//                     <tr key={req._id} className="hover:bg-gray-50">
-//                       <td className="font-medium">{req.recipientName}</td>
-//                       <td>{req.district}, {req.upazila}</td>
-//                       <td>
-//                         <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">
-//                           {req.blood_group}
-//                         </span>
-//                       </td>
-//                       <td>
-//                         <div>{req.donation_date}</div>
-//                         <div className="text-xs text-gray-500">{req.donation_time}</div>
-//                       </td>
-//                       <td>
-//                         <button
-//                           onClick={() => handleView(req._id)}
-//                           className="btn btn-xs btn-error text-white"
-//                         >
-//                           View
-//                         </button>
-//                       </td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             </div>
-//           )}
-
-//           
-//           {totalPages > 1 && (
-//             <div className="flex justify-center items-center gap-2 py-6">
-//               <button
-//                 className="btn btn-sm"
-//                 disabled={currentPage === 1}
-//                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-//               >
-//                 ← Prev
-//               </button>
-
-//               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-//                 let pageNum;
-//                 if (totalPages <= 5) pageNum = i + 1;
-//                 else if (currentPage <= 3) pageNum = i + 1;
-//                 else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
-//                 else pageNum = currentPage - 2 + i;
-//                 return (
-//                   <button
-//                     key={pageNum}
-//                     className={`btn btn-sm ${currentPage === pageNum ? "btn-error" : "btn-outline"}`}
-//                     onClick={() => setCurrentPage(pageNum)}
-//                   >
-//                     {pageNum}
-//                   </button>
-//                 );
-//               })}
-
-//               <button
-//                 className="btn btn-sm"
-//                 disabled={currentPage === totalPages}
-//                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-//               >
-//                 Next →
-//               </button>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default DonationRequest;
-
-
-import { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAxios from "../../hooks/useAxios";
 import { AuthContext } from "../../Context/AuthProvider";
-import Loading from "../Loading";
+import { useTheme } from "../../Context/ThemeContext";
+import {
+  Card,
+  Button,
+  Typography,
+  Pagination,
+  Empty,
+  Row,
+  Col,
+  Input,
+  Select,
+  Skeleton,
+  Space,
+  Avatar,
+} from "antd";
+import {
+  EyeOutlined,
+  SearchOutlined,
+  EnvironmentOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  HeartFilled,
+  FilterOutlined,
+} from "@ant-design/icons";
+import { motion } from "framer-motion";
+import { MapPin, Calendar, Clock, User } from "lucide-react";
+import {
+  ScrollReveal,
+  StaggerContainer,
+  StaggerItem,
+  HoverLiftCard,
+  BloodCellParticles,
+  GradientMesh,
+} from "../../Components/Animations";
+
+const { Title, Text, Paragraph } = Typography;
+const { Option } = Select;
 
 const DonationRequest = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [bloodGroupFilter, setBloodGroupFilter] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
   const axios = useAxios();
   const { user } = useContext(AuthContext);
+  const { isDarkMode, theme } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchRequests = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`/donation-request?status=pending&page=${currentPage}&size=8`);
-        setRequests(res.data.requests);
-        setTotalPages(res.data.totalPages);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchRequests();
-  }, [axios, currentPage]);
+  }, [currentPage, bloodGroupFilter, sortBy]);
+
+  const fetchRequests = async () => {
+    setLoading(true);
+    try {
+      let url = `/donation-request?status=pending&page=${currentPage}&size=8`;
+      if (bloodGroupFilter) url += `&blood_group=${bloodGroupFilter}`;
+      if (sortBy === "newest") url += `&sort=-createdAt`;
+      if (sortBy === "oldest") url += `&sort=createdAt`;
+
+      const res = await axios.get(url);
+      setRequests(res.data.requests || []);
+      setTotalItems(res.data.totalRequests || res.data.totalPages * 8);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleView = (id) => {
     if (!user) {
@@ -184,167 +83,238 @@ const DonationRequest = () => {
     }
   };
 
+  const filteredRequests = requests.filter(
+    (req) =>
+      req.recipientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.district?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.upazila?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const cardStyle = {
+    backgroundColor: theme.colors.card,
+    borderColor: theme.colors.border,
+    borderRadius: "16px",
+  };
+
+  const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+  // Skeleton Card Component
+  const SkeletonCard = () => (
+    <Card style={cardStyle} className="h-full">
+      <Skeleton avatar active paragraph={{ rows: 3 }} />
+    </Card>
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+    <div
+      className={`min-h-screen p-6 ${
+        isDarkMode ? "bg-gray-900" : "bg-gray-50"
+      }`}
+    >
       <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-red-600 to-orange-500 rounded-full mb-4 shadow-lg">
-            <span className="text-4xl">🩸</span>
+        {/* Header */}
+        <ScrollReveal>
+          <div className="text-center mb-8">
+            <Title
+              level={2}
+              style={{ color: theme.colors.text, marginBottom: 8 }}
+            >
+              Blood Donation Requests
+            </Title>
+            <Paragraph
+              style={{ color: theme.colors.textSecondary, fontSize: "16px" }}
+            >
+              Help save lives by responding to these urgent blood requests
+            </Paragraph>
+            <div className="w-20 h-1 bg-red-500 mx-auto mt-4 rounded-full" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent mb-3">
-            Urgent Blood Requests
-          </h1>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            These lives are waiting for your help. Your donation can save someone's life today.
-          </p>
-          <div className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-red-100 text-red-700 rounded-full">
-            <span className="text-2xl">⏰</span>
-            <span className="font-semibold">All requests are pending and need immediate attention</span>
-          </div>
+        </ScrollReveal>
+
+        {/* Filters */}
+        <Card style={cardStyle} className="mb-6 border-0 shadow-md">
+          <Row gutter={[16, 16]} align="middle">
+            <Col xs={24} md={10}>
+              <Input
+                placeholder="Search by name, district, or upazila..."
+                prefix={
+                  <SearchOutlined
+                    style={{ color: theme.colors.textSecondary }}
+                  />
+                }
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="rounded-lg"
+                size="large"
+              />
+            </Col>
+            <Col xs={12} md={7}>
+              <Select
+                placeholder="Blood Group"
+                value={bloodGroupFilter}
+                onChange={setBloodGroupFilter}
+                className="w-full"
+                size="large"
+                allowClear
+              >
+                <Option value="">All Blood Groups</Option>
+                {bloodGroups.map((bg) => (
+                  <Option key={bg} value={bg}>
+                    {bg}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col xs={12} md={7}>
+              <Select
+                value={sortBy}
+                onChange={setSortBy}
+                className="w-full"
+                size="large"
+              >
+                <Option value="newest">Newest First</Option>
+                <Option value="oldest">Oldest First</Option>
+              </Select>
+            </Col>
+          </Row>
+        </Card>
+
+        {/* Results Count */}
+        <div className="mb-4 flex justify-between items-center">
+          <Text style={{ color: theme.colors.textSecondary }}>
+            Showing {filteredRequests.length} of {totalItems} requests
+          </Text>
         </div>
 
-        {/* Requests Table */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <span className="loading loading-spinner loading-lg text-red-600 mb-4"></span>
-              <p className="text-gray-600 font-medium"><Loading/> urgent requests...</p>
-            </div>
-          ) : requests.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="text-7xl mb-4">🎉</div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">No Pending Requests</h3>
-              <p className="text-gray-600">Great news! There are no urgent blood requests at the moment.</p>
-            </div>
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="table w-full">
-                  <thead className="bg-gradient-to-r from-red-50 to-orange-50">
-                    <tr className="text-left text-gray-700 text-sm font-semibold">
-                      <th className="py-5 px-6">Recipient</th>
-                      <th className="py-5 px-6">Location</th>
-                      <th className="py-5 px-6">Blood Group</th>
-                      <th className="py-5 px-6">Date & Time</th>
-                      <th className="py-5 px-6">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {requests.map((req, index) => (
-                      <tr 
-                        key={req._id} 
-                        className="hover:bg-red-50/50 transition-colors border-b border-gray-100 last:border-0"
-                        style={{animationDelay: `${index * 0.05}s`}}
+        {/* Cards Grid - 4 per row on desktop */}
+        {loading ? (
+          <Row gutter={[16, 16]}>
+            {[...Array(8)].map((_, idx) => (
+              <Col xs={24} sm={12} lg={6} key={idx}>
+                <SkeletonCard />
+              </Col>
+            ))}
+          </Row>
+        ) : filteredRequests.length === 0 ? (
+          <Card style={cardStyle} className="text-center py-12">
+            <Empty
+              description={
+                <Text style={{ color: theme.colors.textSecondary }}>
+                  No pending requests found
+                </Text>
+              }
+            />
+          </Card>
+        ) : (
+          <StaggerContainer>
+            <Row gutter={[16, 16]}>
+              {filteredRequests.map((request, idx) => (
+                <Col xs={24} sm={12} lg={6} key={request._id}>
+                  <StaggerItem>
+                    <HoverLiftCard>
+                      <Card
+                        style={cardStyle}
+                        className="h-full border-0 shadow-md hover:shadow-xl transition-shadow cursor-pointer"
+                        onClick={() => handleView(request._id)}
                       >
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center text-white font-bold">
-                              {req.recipientName.charAt(0).toUpperCase()}
-                            </div>
-                            <span className="font-semibold text-gray-800">{req.recipientName}</span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-start gap-1 text-gray-700">
-                            <span className="text-red-500 mt-0.5">📍</span>
-                            <div>
-                              <div className="font-medium">{req.district}</div>
-                              <div className="text-sm text-gray-500">{req.upazila}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className="inline-flex items-center gap-1 px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-bold shadow-sm">
-                            🩸 {req.blood_group}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-1 text-gray-700">
-                              <span className="text-orange-500">📅</span>
-                              <span className="text-sm font-medium">{req.donation_date}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-gray-600">
-                              <span className="text-orange-500">🕒</span>
-                              <span className="text-sm">{req.donation_time}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <button
-                            onClick={() => handleView(req._id)}
-                            className="px-5 py-2.5 bg-gradient-to-r from-red-600 to-orange-500 text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all"
+                        {/* Blood Group Badge */}
+                        <div className="flex justify-between items-start mb-4">
+                          <motion.div
+                            className="w-14 h-14 bg-red-500 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg"
+                            whileHover={{ scale: 1.1, rotate: 5 }}
                           >
-                            View Details →
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                            {request.blood_group}
+                          </motion.div>
+                          <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
+                            Pending
+                          </span>
+                        </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-3 py-8 bg-gradient-to-r from-red-50 to-orange-50">
-                  <button
-                    className="px-4 py-2 bg-white border-2 border-red-300 text-red-700 font-semibold rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  >
-                    ← Previous
-                  </button>
-
-                  <div className="flex gap-2">
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let pageNum;
-                      if (totalPages <= 5) pageNum = i + 1;
-                      else if (currentPage <= 3) pageNum = i + 1;
-                      else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
-                      else pageNum = currentPage - 2 + i;
-                      return (
-                        <button
-                          key={pageNum}
-                          className={`w-10 h-10 font-semibold rounded-lg transition-all ${
-                            currentPage === pageNum 
-                              ? "bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-lg scale-110" 
-                              : "bg-white border-2 border-gray-300 text-gray-700 hover:border-red-400"
-                          }`}
-                          onClick={() => setCurrentPage(pageNum)}
+                        {/* Recipient Info */}
+                        <Title
+                          level={5}
+                          style={{ color: theme.colors.text, marginBottom: 8 }}
+                          className="line-clamp-1"
                         >
-                          {pageNum}
-                        </button>
-                      );
-                    })}
-                  </div>
+                          {request.recipientName}
+                        </Title>
 
-                  <button
-                    className="px-4 py-2 bg-white border-2 border-red-300 text-red-700 font-semibold rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  >
-                    Next →
-                  </button>
-                </div>
+                        {/* Location */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <MapPin size={14} className="text-gray-400" />
+                          <Text
+                            style={{
+                              color: theme.colors.textSecondary,
+                              fontSize: "13px",
+                            }}
+                            className="line-clamp-1"
+                          >
+                            {request.district}, {request.upazila}
+                          </Text>
+                        </div>
+
+                        {/* Date & Time */}
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="flex items-center gap-1">
+                            <Calendar size={14} className="text-gray-400" />
+                            <Text
+                              style={{
+                                color: theme.colors.textSecondary,
+                                fontSize: "12px",
+                              }}
+                            >
+                              {request.donation_date || "Not set"}
+                            </Text>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock size={14} className="text-gray-400" />
+                            <Text
+                              style={{
+                                color: theme.colors.textSecondary,
+                                fontSize: "12px",
+                              }}
+                            >
+                              {request.donation_time || "Not set"}
+                            </Text>
+                          </div>
+                        </div>
+
+                        {/* Action Button */}
+                        <Button
+                          type="primary"
+                          block
+                          icon={<EyeOutlined />}
+                          className="bg-red-500 border-red-500 rounded-lg"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleView(request._id);
+                          }}
+                        >
+                          View Details
+                        </Button>
+                      </Card>
+                    </HoverLiftCard>
+                  </StaggerItem>
+                </Col>
+              ))}
+            </Row>
+          </StaggerContainer>
+        )}
+
+        {/* Pagination */}
+        {!loading && filteredRequests.length > 0 && (
+          <div className="flex justify-center mt-8">
+            <Pagination
+              current={currentPage}
+              onChange={(page) => setCurrentPage(page)}
+              total={totalItems}
+              pageSize={8}
+              showSizeChanger={false}
+              showTotal={(total, range) => (
+                <Text style={{ color: theme.colors.textSecondary }}>
+                  {range[0]}-{range[1]} of {total} requests
+                </Text>
               )}
-            </>
-          )}
-        </div>
-
-        {/* Call to Action */}
-        {!loading && requests.length > 0 && (
-          <div className="mt-12 text-center bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-8 text-white shadow-xl">
-            <h3 className="text-2xl font-bold mb-3">Every Second Counts</h3>
-            <p className="text-white/90 mb-6 max-w-2xl mx-auto">
-              Your blood donation can be the difference between life and death. Click on any request to see full details and confirm your donation.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <div className="px-6 py-3 bg-white/20 rounded-lg backdrop-blur">
-                <div className="text-3xl font-bold">{requests.length}</div>
-                <div className="text-sm text-white/80">Active Requests</div>
-              </div>
-            </div>
+            />
           </div>
         )}
       </div>

@@ -1,328 +1,109 @@
-// // src/Dashboard/AddProduct/EditRequest.jsx
-// import React, { useContext, useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import toast from "react-hot-toast";
-// import axios from "axios";
-// import useAxiosSecure from "../../hooks/useAxiosSecure";
-// import { AuthContext } from "../../Context/AuthProvider";
-
-// const EditRequest = () => {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-//   const axiosSecure = useAxiosSecure();
-//   const { user } = useContext(AuthContext);
-
-//   const [districts, setDistricts] = useState([]);
-//   const [upazilas, setUpazilas] = useState([]);
-//   const [formData, setFormData] = useState({
-//     recipientName: "",
-//     blood_group: "",
-//     district: "",
-//     upazila: "",
-//     hospital: "",
-//     address: "",
-//     request_message: "",
-//     donation_date: "",
-//     donation_time: "",
-//   });
-//   const [loading, setLoading] = useState(true);
-//   const [submitting, setSubmitting] = useState(false);
-
-//   // Load districts & upazilas
-//   useEffect(() => {
-//     axios.get("/district.json").then(res => setDistricts(res.data.districts || []));
-//     axios.get("/upazila.json").then(res => setUpazilas(res.data.upazilas || []));
-//   }, []);
-
-//   // Load request data
-//   useEffect(() => {
-//     const fetchRequest = async () => {
-//       try {
-//         const res = await axiosSecure.get(`/donation-request/${id}`);
-//         setFormData(res.data);
-//         setLoading(false);
-//       } catch (err) {
-//         console.error("Failed to load request", err);
-//         toast.error("Failed to load request");
-//         navigate("/dashboard/my-donation-requests");
-//       }
-//     };
-//     fetchRequest();
-//   }, [id, axiosSecure, navigate]);
-
-//   const filteredUpazilas = upazilas.filter(u => u.district_id === formData.district);
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData(prev => ({ ...prev, [name]: value }));
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setSubmitting(true);
-
-//     try {
-//       await axiosSecure.put(`/requests/${id}`, formData);
-//       toast.success("Request updated successfully!");
-//       navigate("/dashboard/my-request");
-//     } catch (err) {
-//       console.error("Update failed", err);
-//       toast.error("Failed to update request");
-//     } finally {
-//       setSubmitting(false);
-//     }
-//   };
-
-//   if (loading) {
-//     return (
-//       <div className="min-h-screen flex items-center justify-center">
-//         <span className="loading loading-spinner text-primary"></span>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-//       <div className="max-w-2xl w-full bg-white rounded-2xl shadow-lg border p-8">
-//         <h2 className="text-2xl font-bold mb-6 text-center">
-//           Edit Blood Request
-//         </h2>
-
-//         <form onSubmit={handleSubmit} className="space-y-4">
-//           {/* Recipient Name */}
-//           <div>
-//             <label className="block mb-1">Recipient Name</label>
-//             <input
-//               type="text"
-//               name="recipientName"
-//               value={formData.recipientName || ""}
-//               onChange={handleChange}
-//               className="w-full border rounded-lg px-4 py-2"
-//               required
-//             />
-//           </div>
-
-//           {/* Blood Group */}
-//           <div>
-//             <label className="block mb-1">Blood Group</label>
-//             <select
-//               name="blood_group"
-//               value={formData.blood_group || ""}
-//               onChange={handleChange}
-//               className="w-full border rounded-lg px-4 py-2"
-//               required
-//             >
-//               <option value="">Select Blood Group</option>
-//               {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bg) => (
-//                 <option key={bg} value={bg}>{bg}</option>
-//               ))}
-//             </select>
-//           </div>
-
-//           {/* District */}
-//           <div>
-//             <label className="block mb-1">District</label>
-//             <select
-//               name="district"
-//               value={formData.district || ""}
-//               onChange={handleChange}
-//               className="w-full border rounded-lg px-4 py-2"
-//               required
-//             >
-//               <option value="">Select District</option>
-//               {districts.map((d) => (
-//                 <option key={d.id} value={d.id}>{d.name}</option>
-//               ))}
-//             </select>
-//           </div>
-
-//           {/* Upazila */}
-//           <div>
-//             <label className="block mb-1">Upazila</label>
-//             <select
-//               name="upazila"
-//               value={formData.upazila || ""}
-//               onChange={handleChange}
-//               disabled={!formData.district}
-//               className="w-full border rounded-lg px-4 py-2"
-//               required
-//             >
-//               <option value="">Select Upazila</option>
-//               {filteredUpazilas.map((u) => (
-//                 <option key={u.id} value={u.name}>{u.name}</option>
-//               ))}
-//             </select>
-//           </div>
-
-//           {/* Hospital */}
-//           <div>
-//             <label className="block mb-1">Hospital Name</label>
-//             <input
-//               type="text"
-//               name="hospital"
-//               value={formData.hospital || ""}
-//               onChange={handleChange}
-//               className="w-full border rounded-lg px-4 py-2"
-//               required
-//             />
-//           </div>
-
-//           {/* Address */}
-//           <div>
-//             <label className="block mb-1">Full Address</label>
-//             <input
-//               type="text"
-//               name="address"
-//               value={formData.address || ""}
-//               onChange={handleChange}
-//               className="w-full border rounded-lg px-4 py-2"
-//               required
-//             />
-//           </div>
-
-//           {/* Donation Date */}
-//           <div>
-//             <label className="block mb-1">Donation Date</label>
-//             <input
-//               type="date"
-//               name="donation_date"
-//               value={formData.donation_date || ""}
-//               onChange={handleChange}
-//               className="w-full border rounded-lg px-4 py-2"
-//               required
-//             />
-//           </div>
-
-//           {/* Donation Time */}
-//           <div>
-//             <label className="block mb-1">Donation Time</label>
-//             <input
-//               type="time"
-//               name="donation_time"
-//               value={formData.donation_time || ""}
-//               onChange={handleChange}
-//               className="w-full border rounded-lg px-4 py-2"
-//               required
-//             />
-//           </div>
-
-//           {/* Request Message */}
-//           <div>
-//             <label className="block mb-1">Request Message</label>
-//             <textarea
-//               name="request_message"
-//               value={formData.request_message || ""}
-//               onChange={handleChange}
-//               className="w-full border rounded-lg px-4 py-2"
-//               rows="3"
-//             />
-//           </div>
-
-//           <div className="flex gap-3 pt-2">
-//             <button
-//               type="button"
-//               onClick={() => navigate(-1)}
-//               className="flex-1 btn btn-outline"
-//             >
-//               Cancel
-//             </button>
-//             <button
-//               type="submit"
-//               disabled={submitting}
-//               className="flex-1 btn btn-primary"
-//             >
-//               {submitting ? "Updating..." : "Update Request"}
-//             </button>
-//           </div>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default EditRequest;
-
-
-import React, { useContext, useEffect, useState, useCallback, useMemo } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { AuthContext } from "../../Context/AuthProvider";
-import { 
-  Heart, MapPin, Building2, Calendar, Clock, 
-  MessageSquare, Droplet, Save, X, Edit3 
-} from "lucide-react";
+import {
+  Form,
+  Input,
+  Select,
+  Button,
+  DatePicker,
+  TimePicker,
+  Card,
+  Row,
+  Col,
+  Typography,
+  Space,
+  Spin,
+} from "antd";
+import {
+  EditOutlined,
+  HeartFilled,
+  EnvironmentOutlined,
+  BankOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  SaveOutlined,
+  ArrowLeftOutlined,
+} from "@ant-design/icons";
+import dayjs from "dayjs";
 
-const InputWrapper = React.memo(({ icon, label, required, children }) => (
-  <div className="space-y-2">
-    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-      {icon}
-      {label}
-      {required && <span className="text-red-500">*</span>}
-    </label>
-    {children}
-  </div>
-));
+const { Title, Text } = Typography;
+const { TextArea } = Input;
+const { Option } = Select;
 
 const EditRequest = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
-  const { user } = useContext(AuthContext);
-
+  const [form] = Form.useForm();
+  
   const [districts, setDistricts] = useState([]);
   const [upazilas, setUpazilas] = useState([]);
-  const [formData, setFormData] = useState({
-    recipientName: "",
-    blood_group: "",
-    district: "",
-    upazila: "",
-    hospital: "",
-    address: "",
-    request_message: "",
-    donation_date: "",
-    donation_time: "",
-  });
+  const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
 
+  // Load districts & upazilas
   useEffect(() => {
-    axios.get("/district.json").then(res => setDistricts(res.data.districts || []));
-    axios.get("/upazila.json").then(res => setUpazilas(res.data.upazilas || []));
+    axios.get("/district.json").then((res) => {
+      setDistricts(res.data.districts || []);
+    });
+    axios.get("/upazila.json").then((res) => {
+      setUpazilas(res.data.upazilas || []);
+    });
   }, []);
 
+  // Load request data
   useEffect(() => {
     const fetchRequest = async () => {
       try {
         const res = await axiosSecure.get(`/donation-request/${id}`);
-        setFormData(res.data);
+        const data = res.data;
+        
+        // Find district ID from name to pre-populate select correctly
+        const districtObj = districts.find(d => d.name === data.district || d.id === data.district);
+        const districtId = districtObj ? districtObj.id : null;
+        setSelectedDistrict(districtId);
+
+        setRequest({
+          ...data,
+          district: districtId,
+          donation_date: data.donation_date ? dayjs(data.donation_date) : null,
+          donation_time: data.donation_time ? dayjs(data.donation_time, "HH:mm") : null,
+        });
         setLoading(false);
       } catch (err) {
         console.error("Failed to load request", err);
         toast.error("Failed to load request");
-        navigate("/dashboard/donation-request");
+        navigate("/dashboard/my-request");
       }
     };
-    fetchRequest();
-  }, [id, axiosSecure, navigate]);
 
-  const filteredUpazilas = useMemo(() => 
-    upazilas.filter(u => u.district_id === formData.district),
-    [upazilas, formData.district]
-  );
+    if (districts.length > 0) {
+      fetchRequest();
+    }
+  }, [id, axiosSecure, navigate, districts]);
 
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  }, []);
-
-  const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
+  const onFinish = async (values) => {
     setSubmitting(true);
-
     try {
-      await axiosSecure.put(`/requests/${id}`, formData);
+      const updateData = {
+        recipientName: values.recipientName,
+        blood_group: values.blood_group,
+        district: districts.find(d => d.id === values.district)?.name || values.district,
+        upazila: values.upazila,
+        hospital: values.hospital,
+        address: values.address,
+        request_message: values.request_message,
+        donation_date: values.donation_date.format("YYYY-MM-DD"),
+        donation_time: values.donation_time.format("HH:mm"),
+      };
+
+      await axiosSecure.put(`/requests/${id}`, updateData);
       toast.success("Request updated successfully! 🎉");
       navigate("/dashboard/my-request");
     } catch (err) {
@@ -331,201 +112,178 @@ const EditRequest = () => {
     } finally {
       setSubmitting(false);
     }
-  }, [axiosSecure, id, formData, navigate]);
+  };
+
+  const handleDistrictChange = (value) => {
+    setSelectedDistrict(value);
+    form.setFieldsValue({ upazila: undefined });
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-50 via-rose-50 to-orange-50">
-        <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-          <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2c-1.5 3.5-6 8-6 12a6 6 0 0012 0c0-4-4.5-8.5-6-12z"/>
-          </svg>
-        </div>
-        <p className="mt-4 text-gray-600 font-medium">Loading request data...</p>
+      <div className="flex flex-col justify-center items-center h-screen bg-gray-50 gap-4">
+        <Spin size="large" />
+        <Typography.Text type="secondary">Loading request data...</Typography.Text>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-rose-50 to-orange-50 p-4 py-8">
-      {/* Decorative Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-10 w-64 h-64 bg-red-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-20 left-10 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '1s' }}></div>
-      </div>
-
-      <div className="max-w-4xl mx-auto relative z-10">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center shadow-lg">
-              <Edit3 className="w-6 h-6 text-white" />
+    <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>
+                Back
+            </Button>
+            <div className="text-center flex-1">
+                <Space direction="vertical" align="center">
+                    <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
+                        <EditOutlined style={{ fontSize: "24px", color: "#fff" }} />
+                    </div>
+                    <Title level={2} style={{ margin: "8px 0 0 0" }}>Edit Blood Request</Title>
+                </Space>
             </div>
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-red-700 to-red-500 bg-clip-text text-transparent">
-              Edit Blood Request
-            </h2>
-          </div>
-          <p className="text-gray-600 ml-15">Update your donation request details</p>
+            <div style={{ width: 84 }}></div> {/* Spacer for symmetry */}
         </div>
 
-        {/* Form Card */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-red-100 p-6 md:p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Recipient & Blood Group */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputWrapper icon={<Heart size={18} className="text-red-600" />} label="Recipient Name" required>
-                <input
-                  type="text"
+        <Card className="shadow-xl rounded-2xl border-0">
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={onFinish}
+            size="large"
+            initialValues={request}
+          >
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Recipient Name"
                   name="recipientName"
-                  value={formData.recipientName || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                  required
-                />
-              </InputWrapper>
-
-              <InputWrapper icon={<Droplet size={18} className="text-red-600" />} label="Blood Group" required>
-                <select
+                  rules={[{ required: true, message: "Please enter recipient name" }]}
+                >
+                  <Input prefix={<HeartFilled className="text-red-400" />} />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Blood Group"
                   name="blood_group"
-                  value={formData.blood_group || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all appearance-none cursor-pointer"
-                  required
+                  rules={[{ required: true, message: "Please select blood group" }]}
                 >
-                  <option value="">Select Blood Group</option>
-                  {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bg) => (
-                    <option key={bg} value={bg}>{bg}</option>
-                  ))}
-                </select>
-              </InputWrapper>
-            </div>
+                  <Select placeholder="Select Blood Group">
+                    {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bg) => (
+                      <Option key={bg} value={bg}>{bg}</Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
 
-            {/* Location */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputWrapper icon={<MapPin size={18} className="text-red-600" />} label="District" required>
-                <select
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="District"
                   name="district"
-                  value={formData.district || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all appearance-none cursor-pointer"
-                  required
+                  rules={[{ required: true, message: "Please select district" }]}
                 >
-                  <option value="">Select District</option>
-                  {districts.map((d) => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
-                  ))}
-                </select>
-              </InputWrapper>
-
-              <InputWrapper icon={<MapPin size={18} className="text-red-600" />} label="Upazila" required>
-                <select
+                  <Select
+                    placeholder="Select District"
+                    onChange={handleDistrictChange}
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.children ?? "").toLowerCase().includes(input.toLowerCase())
+                    }
+                  >
+                    {districts.map((d) => (
+                      <Option key={d.id} value={d.id}>{d.name}</Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Upazila"
                   name="upazila"
-                  value={formData.upazila || ""}
-                  onChange={handleChange}
-                  disabled={!formData.district}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all appearance-none cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  required
+                  rules={[{ required: true, message: "Please select upazila" }]}
                 >
-                  <option value="">Select Upazila</option>
-                  {filteredUpazilas.map((u) => (
-                    <option key={u.id} value={u.name}>{u.name}</option>
-                  ))}
-                </select>
-              </InputWrapper>
-            </div>
+                  <Select
+                    placeholder="Select Upazila"
+                    disabled={!selectedDistrict}
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.children ?? "").toLowerCase().includes(input.toLowerCase())
+                    }
+                  >
+                    {upazilas
+                      .filter((u) => u.district_id === selectedDistrict)
+                      .map((u) => (
+                        <Option key={u.id} value={u.name}>{u.name}</Option>
+                      ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
 
-            {/* Hospital & Address */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputWrapper icon={<Building2 size={18} className="text-red-600" />} label="Hospital Name" required>
-                <input
-                  type="text"
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Hospital Name"
                   name="hospital"
-                  value={formData.hospital || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                  required
-                />
-              </InputWrapper>
-
-              <InputWrapper icon={<MapPin size={18} className="text-red-600" />} label="Full Address" required>
-                <input
-                  type="text"
+                  rules={[{ required: true, message: "Please enter hospital name" }]}
+                >
+                  <Input prefix={<BankOutlined />} />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Full Address"
                   name="address"
-                  value={formData.address || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                  required
-                />
-              </InputWrapper>
-            </div>
+                  rules={[{ required: true, message: "Please enter address" }]}
+                >
+                  <Input prefix={<EnvironmentOutlined />} />
+                </Form.Item>
+              </Col>
+            </Row>
 
-            {/* Date & Time */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputWrapper icon={<Calendar size={18} className="text-red-600" />} label="Donation Date" required>
-                <input
-                  type="date"
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Donation Date"
                   name="donation_date"
-                  value={formData.donation_date || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                  required
-                />
-              </InputWrapper>
-
-              <InputWrapper icon={<Clock size={18} className="text-red-600" />} label="Donation Time" required>
-                <input
-                  type="time"
+                  rules={[{ required: true, message: "Please select date" }]}
+                >
+                  <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Donation Time"
                   name="donation_time"
-                  value={formData.donation_time || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                  required
-                />
-              </InputWrapper>
-            </div>
+                  rules={[{ required: true, message: "Please select time" }]}
+                >
+                  <TimePicker style={{ width: "100%" }} format="HH:mm" />
+                </Form.Item>
+              </Col>
+            </Row>
 
-            {/* Message */}
-            <InputWrapper icon={<MessageSquare size={18} className="text-red-600" />} label="Request Message">
-              <textarea
-                name="request_message"
-                value={formData.request_message || ""}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all resize-none"
-                rows="3"
-                placeholder="Any additional information..."
-              />
-            </InputWrapper>
+            <Form.Item label="Request Message" name="request_message">
+              <TextArea rows={4} />
+            </Form.Item>
 
-            {/* Buttons */}
-            <div className="flex gap-4 pt-4">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="flex-1 bg-white hover:bg-gray-50 text-gray-700 py-3 rounded-lg font-semibold border-2 border-gray-300 hover:border-gray-400 transition-all flex items-center justify-center gap-2"
+            <Form.Item className="mt-8">
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={submitting}
+                block
+                className="bg-red-600 h-12 text-lg font-bold"
+                icon={<SaveOutlined />}
               >
-                <X size={20} />
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-red-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {submitting ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Updating...
-                  </>
-                ) : (
-                  <>
-                    <Save size={20} />
-                    Update Request
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
+                Update Request
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
       </div>
     </div>
   );

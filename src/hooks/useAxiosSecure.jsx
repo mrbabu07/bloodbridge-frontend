@@ -3,35 +3,45 @@ import { useContext, useEffect } from "react";
 import { AuthContext } from "../Context/AuthProvider";
 
 const axiosSecure = axios.create({
-  baseURL: "https://ph-11-backend-mocha.vercel.app",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
 });
 
 const useAxiosSecure = () => {
-  const { user } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
 
   useEffect(() => {
     const reqInterceptor = axiosSecure.interceptors.request.use(
       (config) => {
-        config.headers.Authorization = `Bearer ${user?.accessToken}`;
+        const token = localStorage.getItem("bloodbridge_token");
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
       },
-      
-    );
-    const resInterceptor = axiosSecure.interceptors.response.use(response=>{
-        return response;
-    }, (error)=>{
-
-        console.log("Response error:", error);
+      (error) => {
         return Promise.reject(error);
-    }
+      }
+    );
 
+    const resInterceptor = axiosSecure.interceptors.response.use(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        if (error.response?.status === 401) {
+          // Token expired or invalid
+          localStorage.removeItem("bloodbridge_token");
+          logout();
+        }
+        return Promise.reject(error);
+      }
     );
 
     return () => {
       axiosSecure.interceptors.request.eject(reqInterceptor);
       axiosSecure.interceptors.response.eject(resInterceptor);
     };
-  }, [user?.accessToken]);
+  }, [logout]);
 
   return axiosSecure;
 };

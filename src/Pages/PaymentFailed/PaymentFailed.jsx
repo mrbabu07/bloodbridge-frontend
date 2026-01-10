@@ -1,124 +1,188 @@
-// import React from "react";
-// import { Link } from "react-router-dom";
-
-// const PaymentFailed = () => {
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex flex-col items-center justify-center p-4">
-//       {/* Decorative Blobs (from haikei.app style) */}
-//       <div className="absolute inset-0 -z-10 overflow-hidden">
-//         <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-//         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
-//       </div>
-
-//       <div className="max-w-md text-center z-10">
-//         {/* Warning Icon */}
-//         <div className="w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-//           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-//             <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-//             </svg>
-//           </div>
-//         </div>
-
-//         <h1 className="text-3xl md:text-4xl font-bold text-red-800 mb-4">
-//           Payment Failed
-//         </h1>
-//         <p className="text-gray-600 mb-8 px-2">
-//           We couldn't process your donation. Don’t worry — you can try again or contact support.
-//         </p>
-
-        
-//         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-//           <Link
-//             to="/funding"
-//             className="px-6 py-3 bg-red-600 text-white font-medium rounded-full shadow hover:bg-red-700 transition transform hover:-translate-y-0.5"
-//           >
-//             Try Again
-//           </Link>
-//           <Link
-//             to="/donation-request"
-//             className="px-6 py-3 bg-white text-red-600 border border-red-300 font-medium rounded-full shadow hover:bg-gray-50 transition"
-//           >
-//             View Requests
-//           </Link>
-//         </div>
-
-//         {/* Footer note (from devmeetsdevs.com minimalist style) */}
-//         <p className="mt-8 text-sm text-gray-500">
-//           Your support means the world to us. Thank you for trying to help.
-//         </p>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default PaymentFailed;
-
-
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTheme } from "../../Context/ThemeContext";
+import { Button, Typography, Card, Space } from "antd";
+import {
+  HomeOutlined,
+  ReloadOutlined,
+  UnorderedListOutlined,
+  CloseCircleFilled,
+} from "@ant-design/icons";
+import { motion } from "framer-motion";
+import { ScrollReveal } from "../../Components/Animations";
+
+const { Text, Title, Paragraph } = Typography;
 
 const PaymentFailed = () => {
+  const { isDarkMode } = useTheme();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative Blobs */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" style={{animationDelay: '1s'}}></div>
+    <div
+      className={`min-h-screen relative overflow-hidden ${
+        isDarkMode
+          ? "bg-gray-900"
+          : "bg-gradient-to-br from-red-50 via-white to-pink-50"
+      }`}
+    >
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute w-[500px] h-[500px] rounded-full bg-red-500/20 blur-3xl"
+          animate={{ x: [0, 100, 0], y: [0, 50, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          style={{ top: "-10%", left: "-10%" }}
+        />
+        <motion.div
+          className="absolute w-[400px] h-[400px] rounded-full bg-pink-500/20 blur-3xl"
+          animate={{ x: [0, -80, 0], y: [0, 80, 0] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          style={{ bottom: "-10%", right: "-10%" }}
+        />
       </div>
 
-      <div className="max-w-md w-full z-10">
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-red-600 to-orange-500 p-8 text-center relative overflow-hidden">
-            <div className="w-24 h-24 mx-auto mb-4 flex items-center justify-center bg-white rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              Payment Failed
-            </h1>
-            <p className="text-white/90">
-              Something went wrong
-            </p>
-          </div>
+      <div className="relative z-20 min-h-screen flex items-center justify-center p-4">
+        <ScrollReveal>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card
+              className={`max-w-xl w-full shadow-2xl rounded-3xl border-0 ${
+                isDarkMode ? "bg-gray-800" : ""
+              }`}
+            >
+              {/* Error Icon */}
+              <div className="flex justify-center pt-8">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring" }}
+                  className="relative"
+                >
+                  <motion.div
+                    className="w-24 h-24 rounded-full bg-red-100 flex items-center justify-center"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <CloseCircleFilled className="text-5xl text-red-500" />
+                  </motion.div>
+                  <motion.div
+                    className="absolute inset-0 rounded-full border-4 border-red-500"
+                    initial={{ scale: 0.8, opacity: 1 }}
+                    animate={{ scale: 1.5, opacity: 0 }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  />
+                </motion.div>
+              </div>
 
-          {/* Content */}
-          <div className="p-8 text-center space-y-6">
-            <p className="text-gray-600 text-lg">
-              We couldn't process your donation. Don't worry — you can try again or contact support.
-            </p>
+              <div className="text-center px-8 py-6">
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <Title level={2} className={isDarkMode ? "text-white" : ""}>
+                    Payment Failed
+                  </Title>
+                </motion.div>
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <Text type="secondary" className="text-lg block mb-2">
+                    We couldn't process your donation at this time.
+                  </Text>
+                  <Text type="secondary">
+                    Don't worry — your account hasn't been charged.
+                  </Text>
+                </motion.div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-3">
-              <Link
-                to="/funding/donate"
-                className="px-6 py-4 bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
-              >
-                🔄 Try Again
-              </Link>
-              <Link
-                to="/donation-request"
-                className="px-6 py-4 bg-white text-red-600 border-2 border-red-300 font-semibold rounded-xl hover:bg-red-50 transition-all"
-              >
-                📋 View Requests
-              </Link>
-              <Link
-                to="/"
-                className="px-6 py-4 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all"
-              >
-                🏠 Back to Home
-              </Link>
-            </div>
+                {/* Reasons */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className={`mt-6 p-6 rounded-2xl ${
+                    isDarkMode
+                      ? "bg-gray-700 border-gray-600"
+                      : "bg-red-50 border-red-100"
+                  } border`}
+                >
+                  <Paragraph
+                    strong
+                    className={isDarkMode ? "text-gray-300" : "text-red-700"}
+                  >
+                    Possible Reasons
+                  </Paragraph>
+                  <ul
+                    className={`text-left text-sm space-y-2 max-w-xs mx-auto ${
+                      isDarkMode ? "text-gray-400" : "text-red-600"
+                    }`}
+                  >
+                    <li>• Insufficient funds</li>
+                    <li>• Card expired or declined</li>
+                    <li>• Network connection issue</li>
+                    <li>• Authentication failed</li>
+                  </ul>
+                  <div
+                    className={`h-px ${
+                      isDarkMode ? "bg-gray-600" : "bg-red-200"
+                    } w-full my-4`}
+                  />
+                  <Paragraph
+                    className={`mb-0 italic ${
+                      isDarkMode ? "text-gray-400" : "text-red-500"
+                    }`}
+                  >
+                    "Your willingness to help is what matters most."
+                  </Paragraph>
+                </motion.div>
 
-            {/* Footer note */}
-            <p className="text-sm text-gray-500 pt-4 border-t border-gray-200">
-              💚 Your support means the world to us. Thank you for trying to help.
-            </p>
-          </div>
-        </div>
+                {/* Action Buttons */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="mt-8 space-y-4"
+                >
+                  <Link to="/funding" className="block">
+                    <Button
+                      type="primary"
+                      size="large"
+                      block
+                      icon={<ReloadOutlined />}
+                      className="h-12 text-lg font-bold rounded-xl bg-red-600 hover:bg-red-700 border-0"
+                    >
+                      Try Again
+                    </Button>
+                  </Link>
+                  <Space size="middle" className="w-full justify-center">
+                    <Link to="/donation-request">
+                      <Button
+                        size="large"
+                        icon={<UnorderedListOutlined />}
+                        className="rounded-xl"
+                      >
+                        View Requests
+                      </Button>
+                    </Link>
+                    <Link to="/">
+                      <Button
+                        size="large"
+                        icon={<HomeOutlined />}
+                        className="rounded-xl"
+                      >
+                        Back to Home
+                      </Button>
+                    </Link>
+                  </Space>
+                </motion.div>
+              </div>
+            </Card>
+          </motion.div>
+        </ScrollReveal>
       </div>
     </div>
   );
