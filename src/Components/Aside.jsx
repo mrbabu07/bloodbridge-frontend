@@ -42,6 +42,12 @@ const Aside = ({ collapsed = false }) => {
         label: "Messages",
         badge: messageUnreadCount,
       },
+      { key: "/dashboard/achievements", icon: Heart, label: "Achievements" },
+      {
+        key: "/dashboard/donation-history",
+        icon: Droplet,
+        label: "My Donations",
+      },
     ];
 
     const donorItems = [

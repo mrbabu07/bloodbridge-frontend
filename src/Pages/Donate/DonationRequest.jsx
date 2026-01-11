@@ -36,6 +36,7 @@ import {
   BloodCellParticles,
   GradientMesh,
 } from "../../Components/Animations";
+import SkeletonCard from "../../Components/Loading/SkeletonCard";
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;

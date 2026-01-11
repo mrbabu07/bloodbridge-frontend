@@ -42,6 +42,11 @@ export const SocketProvider = ({ children }) => {
       setUnreadCount(response.data.unreadCount || 0);
       setIsConnected(true);
     } catch (error) {
+      // Silently handle 401 errors (user not authenticated)
+      if (error.response?.status === 401) {
+        setIsConnected(false);
+        return;
+      }
       console.error("Failed to fetch notifications:", error);
       setIsConnected(false);
     }
@@ -55,6 +60,10 @@ export const SocketProvider = ({ children }) => {
       const response = await axios.get("/messages/unread/count");
       setMessageUnreadCount(response.data.unreadCount || 0);
     } catch (error) {
+      // Silently handle 401 errors (user not authenticated)
+      if (error.response?.status === 401) {
+        return;
+      }
       console.error("Failed to fetch message count:", error);
     }
   }, [user, axios]);

@@ -16,6 +16,9 @@ import Statistics from "../Pages/Statistics/Statistics";
 import About from "../Pages/About/About";
 import Contact from "../Pages/Contact/Contact";
 import FAQ from "../Pages/FAQ/FAQ";
+import DonorSearch from "../Pages/DonorSearch/DonorSearch";
+import Events from "../Pages/Events/Events";
+import EmergencyRequests from "../Pages/Emergency/EmergencyRequests";
 
 // Dashboard
 import DashboardLayout from "../Dashboard/DashboardLayout";
@@ -24,6 +27,8 @@ import AddRequest from "../Dashboard/AddProduct/AddRequest";
 import MyRequest from "../Dashboard/MyRequest/MyRequest";
 import ContactMessages from "../Dashboard/ContactMessages/ContactMessages";
 import Messages from "../Dashboard/Messages/Messages";
+import Achievements from "../Dashboard/Achievements/Achievements";
+import DonationHistory from "../Dashboard/DonationHistory/DonationHistory";
 
 import PrivateRoute from "./PrivateRoute";
 import AdminRoute from "./AdminRoute";
@@ -46,6 +51,9 @@ const router = createBrowserRouter([
       { path: "about", element: <About /> },
       { path: "contact", element: <Contact /> },
       { path: "faq", element: <FAQ /> },
+      { path: "donors", element: <DonorSearch /> },
+      { path: "events", element: <Events /> },
+      { path: "emergency", element: <EmergencyRequests /> },
       { path: "payment-success", element: <PaymentSuccess /> },
       { path: "payment-failed", element: <PaymentFailed /> },
       {
@@ -86,6 +94,8 @@ const router = createBrowserRouter([
       { path: "add-request", element: <AddRequest /> },
       { path: "my-request", element: <MyRequest /> },
       { path: "donation-request", element: <DonationRequest /> },
+      { path: "achievements", element: <Achievements /> },
+      { path: "donation-history", element: <DonationHistory /> },
       {
         path: "all-users",
         element: (

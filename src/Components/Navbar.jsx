@@ -28,8 +28,10 @@ import {
   FileTextOutlined,
   SettingOutlined,
   BellOutlined,
-  PlusOutlined,
   UnorderedListOutlined,
+  WarningOutlined,
+  CalendarOutlined,
+  PlusOutlined,
   DownOutlined,
 } from "@ant-design/icons";
 import NotificationBell from "./Notifications/NotificationBell";
@@ -49,96 +51,100 @@ const Navbar = () => {
     navigate("/");
   };
 
-  // Logged out menu items (3+ routes)
-  const publicMenuItems = [
+  // Static menu items (always visible)
+  const staticMenuItems = [
     {
       key: "/",
       icon: <HeartFilled />,
       label: <Link to="/">Home</Link>,
     },
     {
-      key: "/donation-request",
-      icon: <UnorderedListOutlined />,
-      label: <Link to="/donation-request">Blood Requests</Link>,
-    },
-    {
-      key: "/search",
-      icon: <SearchOutlined />,
-      label: <Link to="/search">Find Donors</Link>,
-    },
-    {
-      key: "about-dropdown",
-      icon: <InfoCircleOutlined />,
-      label: "About",
-      children: [
-        {
-          key: "/about",
-          icon: <TeamOutlined />,
-          label: <Link to="/about">About Us</Link>,
-        },
-        {
-          key: "/contact",
-          icon: <FileTextOutlined />,
-          label: <Link to="/contact">Contact</Link>,
-        },
-        {
-          key: "/faq",
-          icon: <QuestionCircleOutlined />,
-          label: <Link to="/faq">FAQ</Link>,
-        },
-      ],
+      key: "/emergency",
+      icon: <WarningOutlined />,
+      label: (
+        <Link to="/emergency" className="text-red-600 font-bold">
+          🚨 Emergency
+        </Link>
+      ),
     },
   ];
 
-  // Logged in menu items (5+ routes)
+  // Donation dropdown (public)
+  const donationDropdown = {
+    key: "donation-dropdown",
+    icon: <HeartFilled />,
+    label: "Donate",
+    children: [
+      {
+        key: "/donation-request",
+        icon: <UnorderedListOutlined />,
+        label: <Link to="/donation-request">Blood Requests</Link>,
+      },
+      {
+        key: "/donors",
+        icon: <SearchOutlined />,
+        label: <Link to="/donors">Find Donors</Link>,
+      },
+      {
+        key: "/events",
+        icon: <CalendarOutlined />,
+        label: <Link to="/events">Donation Events</Link>,
+      },
+    ],
+  };
+
+  // Resources dropdown (logged in users)
+  const resourcesDropdown = {
+    key: "resources-dropdown",
+    icon: <BarChartOutlined />,
+    label: "Resources",
+    children: [
+      {
+        key: "/funding",
+        icon: <FundOutlined />,
+        label: <Link to="/funding">Funding</Link>,
+      },
+      {
+        key: "/statistics",
+        icon: <BarChartOutlined />,
+        label: <Link to="/statistics">Statistics</Link>,
+      },
+    ],
+  };
+
+  // About dropdown
+  const aboutDropdown = {
+    key: "about-dropdown",
+    icon: <InfoCircleOutlined />,
+    label: "About",
+    children: [
+      {
+        key: "/about",
+        icon: <TeamOutlined />,
+        label: <Link to="/about">About Us</Link>,
+      },
+      {
+        key: "/contact",
+        icon: <FileTextOutlined />,
+        label: <Link to="/contact">Contact</Link>,
+      },
+      {
+        key: "/faq",
+        icon: <QuestionCircleOutlined />,
+        label: <Link to="/faq">FAQ</Link>,
+      },
+    ],
+  };
+
+  // Public menu (not logged in)
+  const publicMenuItems = [...staticMenuItems, donationDropdown, aboutDropdown];
+
+  // Private menu (logged in)
   const privateMenuItems = [
-    {
-      key: "/",
-      icon: <HeartFilled />,
-      label: <Link to="/">Home</Link>,
-    },
-    {
-      key: "/donation-request",
-      icon: <UnorderedListOutlined />,
-      label: <Link to="/donation-request">Blood Requests</Link>,
-    },
-    {
-      key: "/search",
-      icon: <SearchOutlined />,
-      label: <Link to="/search">Find Donors</Link>,
-    },
-    {
-      key: "/funding",
-      icon: <FundOutlined />,
-      label: <Link to="/funding">Funding</Link>,
-    },
-    {
-      key: "/statistics",
-      icon: <BarChartOutlined />,
-      label: <Link to="/statistics">Statistics</Link>,
-    },
-    {
-      key: "more-dropdown",
-      icon: <InfoCircleOutlined />,
-      label: "More",
-      children: [
-        {
-          key: "/about",
-          icon: <TeamOutlined />,
-          label: <Link to="/about">About Us</Link>,
-        },
-        {
-          key: "/contact",
-          icon: <FileTextOutlined />,
-          label: <Link to="/contact">Contact</Link>,
-        },
-        {
-          key: "/faq",
-          icon: <QuestionCircleOutlined />,
-          label: <Link to="/faq">FAQ</Link>,
-        },
-      ],
-    },
+    ...staticMenuItems,
+    donationDropdown,
+    resourcesDropdown,
+    aboutDropdown,
   ];
 
   const menuItems = user ? privateMenuItems : publicMenuItems;

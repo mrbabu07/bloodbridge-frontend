@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { AuthContext } from "../../Context/AuthProvider";
+import { useTheme } from "../../Context/ThemeContext";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import {
   Form,
@@ -26,6 +27,11 @@ import {
   ClockCircleOutlined,
   MessageOutlined,
 } from "@ant-design/icons";
+import {
+  ScrollReveal,
+  HoverLiftCard,
+  GradientMesh,
+} from "../../Components/Animations";
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
@@ -34,6 +40,7 @@ const { Option } = Select;
 
 const AddRequest = () => {
   const { user } = useContext(AuthContext);
+  const { isDarkMode } = useTheme();
   const [form] = Form.useForm();
   const [districts, setDistricts] = useState([]);
   const [upazilas, setUpazilas] = useState([]);
@@ -95,201 +102,301 @@ const AddRequest = () => {
   };
 
   return (
-    <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
+    <div
+      className={`p-4 md:p-8 min-h-screen ${
+        isDarkMode ? "bg-gray-900" : "bg-gray-50"
+      }`}
+    >
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-8">
-          <Space direction="vertical" align="center">
-            <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
-              <HeartFilled style={{ fontSize: "32px", color: "#fff" }} />
-            </div>
-            <Title level={2} style={{ margin: "8px 0 0 0" }}>
-              Create Blood Request
-            </Title>
-            <Text type="secondary">
-              Fill in the details to request blood donation
-            </Text>
-          </Space>
+        {/* Hero Section */}
+        <div className="relative overflow-hidden rounded-3xl mb-8 p-8">
+          <GradientMesh />
+          <div className="relative z-10">
+            <ScrollReveal>
+              <div className="text-center">
+                <Space direction="vertical" align="center">
+                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
+                    <HeartFilled style={{ fontSize: "32px", color: "#fff" }} />
+                  </div>
+                  <Title
+                    level={2}
+                    style={{ margin: "8px 0 0 0" }}
+                    className={isDarkMode ? "text-white" : ""}
+                  >
+                    Create Blood Request
+                  </Title>
+                  <Text type="secondary">
+                    Fill in the details to request blood donation
+                  </Text>
+                </Space>
+              </div>
+            </ScrollReveal>
+          </div>
         </div>
 
-        <Card className="shadow-xl rounded-2xl border-0">
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={onFinish}
-            initialValues={{
-              requesterName: user?.name,
-              requesterEmail: user?.email,
-            }}
-            size="large"
-          >
-            <Row gutter={16}>
-              <Col xs={24} md={12}>
-                <Form.Item label="Requester Name" name="requesterName">
-                  <Input prefix={<UserOutlined />} disabled />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item label="Requester Email" name="requesterEmail">
-                  <Input prefix={<MailOutlined />} disabled />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Row gutter={16}>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="Recipient Name"
-                  name="recipientName"
-                  rules={[
-                    { required: true, message: "Please enter recipient name" },
-                  ]}
-                >
-                  <Input placeholder="Full Name" />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="Blood Group"
-                  name="blood_group"
-                  rules={[
-                    { required: true, message: "Please select blood group" },
-                  ]}
-                >
-                  <Select placeholder="Select Blood Group">
-                    {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(
-                      (bg) => (
-                        <Option key={bg} value={bg}>
-                          {bg}
-                        </Option>
-                      )
-                    )}
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Row gutter={16}>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="District"
-                  name="district"
-                  rules={[
-                    { required: true, message: "Please select district" },
-                  ]}
-                >
-                  <Select
-                    placeholder="Select District"
-                    onChange={handleDistrictChange}
-                    showSearch
-                    filterOption={(input, option) =>
-                      (option?.children ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                  >
-                    {districts.map((d) => (
-                      <Option key={d.id} value={d.id}>
-                        {d.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="Upazila"
-                  name="upazila"
-                  rules={[{ required: true, message: "Please select upazila" }]}
-                >
-                  <Select
-                    placeholder="Select Upazila"
-                    disabled={!selectedDistrict}
-                    showSearch
-                    filterOption={(input, option) =>
-                      (option?.children ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                  >
-                    {upazilas
-                      .filter((u) => u.district_id === selectedDistrict)
-                      .map((u) => (
-                        <Option key={u.id} value={u.name}>
-                          {u.name}
-                        </Option>
-                      ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Row gutter={16}>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="Hospital Name"
-                  name="hospital"
-                  rules={[
-                    { required: true, message: "Please enter hospital name" },
-                  ]}
-                >
-                  <Input
-                    prefix={<BankOutlined />}
-                    placeholder="e.g. Dhaka Medical College"
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="Full Address"
-                  name="address"
-                  rules={[{ required: true, message: "Please enter address" }]}
-                >
-                  <Input
-                    prefix={<EnvironmentOutlined />}
-                    placeholder="Street, area, landmarks"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Row gutter={16}>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="Donation Date"
-                  name="donation_date"
-                  rules={[{ required: true, message: "Please select date" }]}
-                >
-                  <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="Donation Time"
-                  name="donation_time"
-                  rules={[{ required: true, message: "Please select time" }]}
-                >
-                  <TimePicker style={{ width: "100%" }} format="HH:mm" />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Form.Item label="Request Message" name="request_message">
-              <TextArea rows={4} placeholder="Any additional information..." />
-            </Form.Item>
-
-            <Form.Item className="mt-8">
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={isLoading}
-                block
-                className="bg-red-600 h-12 text-lg font-bold"
+        <ScrollReveal delay={0.2}>
+          <HoverLiftCard>
+            <Card
+              className={`shadow-xl rounded-2xl border-0 ${
+                isDarkMode ? "bg-gray-800 border-gray-700" : ""
+              }`}
+            >
+              <Form
+                form={form}
+                layout="vertical"
+                onFinish={onFinish}
+                initialValues={{
+                  requesterName: user?.name,
+                  requesterEmail: user?.email,
+                }}
+                size="large"
               >
-                Submit Blood Request
-              </Button>
-            </Form.Item>
-          </Form>
-        </Card>
+                <Row gutter={16}>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label={
+                        <span className={isDarkMode ? "text-gray-300" : ""}>
+                          Requester Name
+                        </span>
+                      }
+                      name="requesterName"
+                    >
+                      <Input prefix={<UserOutlined />} disabled />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label={
+                        <span className={isDarkMode ? "text-gray-300" : ""}>
+                          Requester Email
+                        </span>
+                      }
+                      name="requesterEmail"
+                    >
+                      <Input prefix={<MailOutlined />} disabled />
+                    </Form.Item>
+                  </Col>
+                </Row>
+
+                <Row gutter={16}>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label={
+                        <span className={isDarkMode ? "text-gray-300" : ""}>
+                          Recipient Name
+                        </span>
+                      }
+                      name="recipientName"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter recipient name",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Full Name" />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label={
+                        <span className={isDarkMode ? "text-gray-300" : ""}>
+                          Blood Group
+                        </span>
+                      }
+                      name="blood_group"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select blood group",
+                        },
+                      ]}
+                    >
+                      <Select placeholder="Select Blood Group">
+                        {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(
+                          (bg) => (
+                            <Option key={bg} value={bg}>
+                              {bg}
+                            </Option>
+                          )
+                        )}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
+
+                <Row gutter={16}>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label={
+                        <span className={isDarkMode ? "text-gray-300" : ""}>
+                          District
+                        </span>
+                      }
+                      name="district"
+                      rules={[
+                        { required: true, message: "Please select district" },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Select District"
+                        onChange={handleDistrictChange}
+                        showSearch
+                        filterOption={(input, option) =>
+                          (option?.children ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                      >
+                        {districts.map((d) => (
+                          <Option key={d.id} value={d.id}>
+                            {d.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label={
+                        <span className={isDarkMode ? "text-gray-300" : ""}>
+                          Upazila
+                        </span>
+                      }
+                      name="upazila"
+                      rules={[
+                        { required: true, message: "Please select upazila" },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Select Upazila"
+                        disabled={!selectedDistrict}
+                        showSearch
+                        filterOption={(input, option) =>
+                          (option?.children ?? "")
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                      >
+                        {upazilas
+                          .filter((u) => u.district_id === selectedDistrict)
+                          .map((u) => (
+                            <Option key={u.id} value={u.name}>
+                              {u.name}
+                            </Option>
+                          ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
+
+                <Row gutter={16}>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label={
+                        <span className={isDarkMode ? "text-gray-300" : ""}>
+                          Hospital Name
+                        </span>
+                      }
+                      name="hospital"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter hospital name",
+                        },
+                      ]}
+                    >
+                      <Input
+                        prefix={<BankOutlined />}
+                        placeholder="e.g. Dhaka Medical College"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label={
+                        <span className={isDarkMode ? "text-gray-300" : ""}>
+                          Full Address
+                        </span>
+                      }
+                      name="address"
+                      rules={[
+                        { required: true, message: "Please enter address" },
+                      ]}
+                    >
+                      <Input
+                        prefix={<EnvironmentOutlined />}
+                        placeholder="Street, area, landmarks"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+
+                <Row gutter={16}>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label={
+                        <span className={isDarkMode ? "text-gray-300" : ""}>
+                          Donation Date
+                        </span>
+                      }
+                      name="donation_date"
+                      rules={[
+                        { required: true, message: "Please select date" },
+                      ]}
+                    >
+                      <DatePicker
+                        style={{ width: "100%" }}
+                        format="YYYY-MM-DD"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label={
+                        <span className={isDarkMode ? "text-gray-300" : ""}>
+                          Donation Time
+                        </span>
+                      }
+                      name="donation_time"
+                      rules={[
+                        { required: true, message: "Please select time" },
+                      ]}
+                    >
+                      <TimePicker style={{ width: "100%" }} format="HH:mm" />
+                    </Form.Item>
+                  </Col>
+                </Row>
+
+                <Form.Item
+                  label={
+                    <span className={isDarkMode ? "text-gray-300" : ""}>
+                      Request Message
+                    </span>
+                  }
+                  name="request_message"
+                >
+                  <TextArea
+                    rows={4}
+                    placeholder="Any additional information..."
+                  />
+                </Form.Item>
+
+                <Form.Item className="mt-8">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={isLoading}
+                    block
+                    className="bg-red-600 hover:bg-red-700 h-12 text-lg font-bold"
+                  >
+                    Submit Blood Request
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Card>
+          </HoverLiftCard>
+        </ScrollReveal>
       </div>
     </div>
   );
