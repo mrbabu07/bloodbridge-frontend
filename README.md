@@ -1,14 +1,14 @@
-# BloodBridge
+# 🩸 BloodBridge Frontend
 
-BloodBridge is a web-based blood donation management platform designed to connect donors, volunteers, and administrators in one place. The goal is to make blood requests easier to create, find, and manage while keeping the process transparent and organized.
+Modern, responsive React application for the BloodBridge blood donation management platform. Built with React 19, Vite, Ant Design, and Tailwind CSS.
 
-## Live Website
-🔗 https://bloodbridge-ph-11.netlify.app
+## 📋 Table of Contents
 
-## Purpose
-- Help people request blood quickly in emergency situations
-- Allow donors and volunteers to find blood requests by location and blood group
-- Provide role-based dashboards for better management
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Covide role-based dashboards for better management
 - Centralize blood request and user management in a single system
 
 ## Key Features
